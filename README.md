@@ -2,7 +2,7 @@
 
 This is a **Chat API** build with  **MERN stack** (MngoDb, Express, React, Node.js) and icludes authentication with **JWT(JSON Web Tokens)** and validation using **Joi**. Chappy-chat is application where userrs can send and recieve messaegs in channels or directly to other users(DMs). The API provides endpoints for user authentication, managing channels, and sending messages in both open and locked channels. The application allows for guest access to open channels and secured communication for logged-in users.
 
-<!-- Documented with [https://writer.mintlify.com/](Mintlify Document Writer) -->
+Documented with [https://writer.mintlify.com/](Mintlify Document Writer)
 
 ## Table of contents
 
