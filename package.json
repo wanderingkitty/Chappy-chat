@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "run-server": "tsc && node -- env-file .env ./backendDist/server.js",
     "lint": "eslint .",
     "preview": "vite preview",
-    "backend": "tsc --project tsconfig.backend.json && node --env-file .env ./backendDist/server.js"
+    "backend": "tsc --project tsconfig.backend.json && node --env-file .env ./backendDist/server.js",
+    "server": "rm -rf ./dist && tsc && node backendDist/server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
