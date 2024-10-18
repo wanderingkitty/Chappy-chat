@@ -1,22 +1,15 @@
 {
 	"compilerOptions": {
-		"target": "ES2022",
-		"lib": ["ES2023"],
-		"module": "ESNext",
-		"skipLibCheck": true,
-		
-		/* Bundler mode */
-		"moduleResolution": "bundler",
-		"isolatedModules": true,
-		"moduleDetection": "force",
-		"noEmit": false,
-		"outDir": "./backendDist/",
-		
-		/* Linting */
-		"strict": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"noFallthroughCasesInSwitch": true
+	  "target": "ES2020",
+	  "module": "ESNext",
+	  "moduleResolution": "node",
+	  "esModuleInterop": true,
+	  "outDir": "./backendDist",
+	  "rootDir": "./backend",
+	  "strict": true,
+	  "skipLibCheck": true,
+	  "forceConsistentCasingInFileNames": true
 	},
-	"include": ["backendSrc"]
-}
+	"include": ["backend/**/*"],
+	"exclude": ["node_modules", "src", "public"]
+  }
