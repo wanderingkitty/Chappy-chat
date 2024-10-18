@@ -1,6 +1,6 @@
 import { Request, Response } from "express"; 
 import { Collection } from "mongodb"; 
-import { User } from "../../interfaces/user.js"
+import { User } from "../interfaces/user.js"
 import { logWithLocation } from "../../helpers/betterConsoleLog.js";
 
 export const getAllUsers = async(

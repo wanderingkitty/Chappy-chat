@@ -6,10 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-<<<<<<< HEAD
-    "server": "tsc && node -r dotenv/config ./backendDist/server.js",
-=======
->>>>>>> 979815b
     "lint": "eslint .",
     "preview": "vite preview",
     "backend": "tsc --project tsconfig.backend.json && node --env-file .env ./backendDist/server.js",
@@ -20,6 +16,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.9.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

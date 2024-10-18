@@ -23,15 +23,14 @@ let db: Db
  */
 
 async function connect() {
-	try {
-		await client.connect()
-		db = client.db(dbName)
-		logWithLocation(`Connected to ${dbName} successfully.`, "success");
-		
-	} catch (error:any) {
-		logWithLocation(`Failed to connect to ${dbName}. ${error}`, "error");
-		
-	}
+    try {
+        await client.connect();
+        db = client.db(dbName);
+        logWithLocation(`Connected to ${dbName} successfully.`, "success");
+    } catch (error: any) {
+        logWithLocation(`Failed to connect to ${dbName}. ${error}`, "error");
+        process.exit(1); 
+    }
 }
 
 export { client, db, connect }

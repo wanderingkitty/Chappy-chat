@@ -27,6 +27,7 @@ Documented with [https://writer.mintlify.com/](Mintlify Document Writer)
 | channelId | string | ID for the channel where the message was send. |
 | content | string | The content of the message (text, link, or media). |
 | isPrivate | boolean | Indicates whether the message is private (DM) or was sent in a channel. |
+| sentAt | Date | Indicates the time the  message was sent. |
 
 ### Channel model
 
@@ -35,6 +36,7 @@ Documented with [https://writer.mintlify.com/](Mintlify Document Writer)
 | channelId | string | Unique ID for each channel. | 
 | name | string | The name of the chanel. |
 | isPrivate | boolean | Indicates whether the channel is locked or open. |
+| members | ObjectId[] | List of users which are included to the channel. |
 
 
 ### Private messages model
