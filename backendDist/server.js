@@ -1,4 +1,5 @@
 import express from "express";
+<<<<<<< HEAD
 import { connect, client } from "./db/dbConnection.js";
 import { userRouter } from "./routes/userRouter.js";
 const app = express();
@@ -14,15 +15,44 @@ app.get("/", (_req, res) => {
     console.log(`Server status ${res.statusCode}`);
 });
 app.use("/users", userRouter);
+=======
+import { connect, client } from "./data/dbConnection.js";
+import { userRouter } from "./routes/userRoute.js";
+import { logWithLocation } from "./helpers/betterConsoleLog.js";
+const app = express();
+const port = process.env.PORT;
+// Middleware
+app.use(express.json());
+// app.use(express.static("./frontend")); 
+// Routes
+app.get("/", (req, res) => {
+    res.status(200).send("Server is running");
+    logWithLocation(`Server status ${res.statusCode}`, "success");
+});
+app.use("/users", userRouter);
+/**
+ * The `startServer` function attempts to connect to a server, starts listening on a specified port,
+ * and logs the success or failure of the operation.
+ */
+// Start server
+>>>>>>> 979815b
 async function startServer() {
     try {
         await connect();
         app.listen(port, () => {
+<<<<<<< HEAD
             console.log(`Server is running on port ${port}...`);
         });
     }
     catch (error) {
         console.log(`Failed to start server: ${error}`);
+=======
+            logWithLocation(`Server is running on port ${port}`, "success");
+        });
+    }
+    catch (error) {
+        logWithLocation(`Failed to start server: ${error}`, "error");
+>>>>>>> 979815b
         await client.close();
         process.exit(1);
     }
