@@ -1,26 +1,25 @@
 import { MongoClient, Db, Collection } from "mongodb"; 
 import { logWithLocation } from "../helpers/betterConsoleLog.js";
 import { User } from "../models/interfaces/user.js"; 
+import 'dotenv/config';
 
-const connectionString = process.env.CONNECTION_STRING;
 const dbName = process.env.MONGODB_DB_NAME;
 
+const connectionString = process.env.CONNECTION_STRING;
 if (!connectionString) {
     console.error("CONNECTION_STRING is not defined in environment variables");
     process.exit(1);
 }
 
 if (!dbName) {
-    console.error("MONGODB_DB_NAME is not defined in environment variables");
-    process.exit(1); // Stop execution if dbName is not defined
+    throw new Error("MONGODB_DB_NAME is not defined in environment variables");
 }
 
 const client: MongoClient = new MongoClient(connectionString);
 let db: Db;
 
 /**
- * The function `connect` establishes a connection to a database using an asynchronous operation in
- * TypeScript and returns the User collection.
+ * Establishes a connection to the database and returns the User collection.
  */
 async function connect(): Promise<Collection<User>> {
     try {
@@ -28,12 +27,20 @@ async function connect(): Promise<Collection<User>> {
         db = client.db(dbName);
         logWithLocation(`Connected to ${dbName} successfully.`, "success");
 
-        // Return the User collection directly
         return db.collection<User>("users");
-    } catch (error: any) {
+    } catch (error) {
         logWithLocation(`Failed to connect to ${dbName}. ${error}`, "error");
-        process.exit(1); 
+        throw error; 
     }
 }
 
-export { client, db, connect };
+/**
+ * Closes the database connection.
+ */
+async function closeConnection(): Promise<void> {
+    await client.close();
+    logWithLocation("Database connection closed.", "info");
+}
+
+export { connect, closeConnection, client, db };
+

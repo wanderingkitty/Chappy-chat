@@ -1,29 +1,26 @@
 import express, { Router, Request, Response, NextFunction } from "express";
 import { Collection } from "mongodb";
-import { db, connect } from "../data/dbConnection.js";
-import { logWithLocation } from "../helpers/betterConsoleLog.js";
+import { connect } from "../data/dbConnection.js";
 import jwt from 'jsonwebtoken';
 import { User } from "../models/interfaces/user.js";
 import { validateLogin } from "../validation/validateLogin.js";
 
 const userRouter: Router = express.Router();
-let collection: Collection<User>;
 
-userRouter.use((req: Request, res: Response, next: NextFunction) => {
+userRouter.use((req: Request, _res: Response, next: NextFunction) => {
     console.log(`Request Method: ${req.method}, Request URL: ${req.url}`);
-    collection = db.collection<User>("users");
     next();
 });
 
-// Тестовый маршрут в userRouter
-userRouter.get('/test', (req: Request, res: Response) => {
-    res.json({ message: "User router is working" });
-});
 
-userRouter.get("/", async (req: Request, res: Response) => {
+userRouter.get("/", async (_req: Request, res: Response) => {
     res.json({ message: "This will return all users in the future" });
 });
 
+/* This code snippet defines a POST route at '/login' on the userRouter. When a POST request is made to
+this route, it expects the request body to contain a username and password. It then connects to the
+database, retrieves a collection of users, and validates the login credentials using the
+validateLogin function. */
 userRouter.post('/login', (req: Request, res: Response) => {
     const { username, password } = req.body;
     

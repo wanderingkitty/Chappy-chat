@@ -1,21 +1,13 @@
 import express from "express";
-import { db, connect } from "../data/dbConnection.js";
+import { connect } from "../data/dbConnection.js";
 import jwt from 'jsonwebtoken';
 import { validateLogin } from "../validation/validateLogin.js";
 const userRouter = express.Router();
-let collection;
-userRouter.use((req, res, next) => {
+userRouter.use((req, _res, next) => {
     console.log(`Request Method: ${req.method}, Request URL: ${req.url}`);
-    collection = db.collection("users");
     next();
 });
-// Тестовый маршрут в userRouter
-userRouter.get('/test', (req, res) => {
-    res.json({ message: "User router is working" });
-});
-// Get all users (can be protected with JWT in the future)
-userRouter.get("/", async (req, res) => {
-    // Implement the function to get all users
+userRouter.get("/", async (_req, res) => {
     res.json({ message: "This will return all users in the future" });
 });
 userRouter.post('/login', (req, res) => {
