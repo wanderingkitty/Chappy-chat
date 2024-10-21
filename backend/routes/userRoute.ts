@@ -12,21 +12,17 @@ userRouter.use((req: Request, _res: Response, next: NextFunction) => {
     next();
 });
 
-
-userRouter.get("/", async (_req: Request, res: Response) => {
+userRouter.get("/", (req: Request, res: Response) => {
     res.json({ message: "This will return all users in the future" });
 });
 
-/* This code snippet defines a POST route at '/login' on the userRouter. When a POST request is made to
-this route, it expects the request body to contain a username and password. It then connects to the
-database, retrieves a collection of users, and validates the login credentials using the
-validateLogin function. */
-userRouter.post('/login', (req: Request, res: Response) => {
+userRouter.post('/login', async (req: Request, res: Response): Promise<void> => {
     const { username, password } = req.body;
     
-    connect().then((collection: Collection<User>) => {
-        return validateLogin(username, password, collection);
-    }).then((user: User | null) => {
+    try {
+        const collection: Collection<User> = await connect();
+        const user = await validateLogin(username, password, collection);
+
         if (!user) {
             res.status(401).json({ error: "Unauthorized", message: "You are not authorized to access this resource." });
             return;
@@ -36,10 +32,10 @@ userRouter.post('/login', (req: Request, res: Response) => {
         const payload = { userId: user._id.toString() };
         const token: string = jwt.sign(payload, process.env.SECRET || '');
         res.json({ jwt: token });
-    }).catch((error: any) => {
+    } catch (error) {
         console.error('Error during login:', error);
         res.status(500).json({ error: "Server Error", message: "An error occurred during login." });
-    });
+    }
 });
 
 export { userRouter };
