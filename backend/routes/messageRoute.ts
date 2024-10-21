@@ -9,7 +9,7 @@ creating a router instance called `messageRouter` using Express. Here's a breakd
 part of the code is doing: */
 const messageRouter: Router = express.Router();
 
-const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
+const authenticateToken = (req: Request, _res: Response, next: NextFunction) => {
     // Получаем токен напрямую из заголовка
     const token = req.headers.authorization;
 
@@ -21,7 +21,7 @@ const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
             (req as any).user = verifiedUser;
         } catch (error) {
             // Если токен недействителен, просто продолжаем без установки пользователя
-            console.log('Invalid token:', error.message);
+            console.log('Invalid token:', error);
         }
     }
     // Продолжаем обработку запроса в любом случае
@@ -66,7 +66,7 @@ messageRouter.get("/:channelId", authenticateToken, async (req: Request, res: Re
 /* The `messageRouter.post("/:channelId", authenticateToken, async (req: Request, res: Response):
 Promise<void => { ... })` function is defining a route handler for handling POST requests to send a
 message to a specific channel. Here's a breakdown of what this function does: */
-messageRouter.post("/:channelId", authenticateToken, async (req: Request, res: Response): Promise<void> => {
+messageRouter.post("/", authenticateToken, async (req: Request, res: Response): Promise<void> => {
     logWithLocation(`POST request to send a message received`, "info");
     
     try {
@@ -74,24 +74,35 @@ messageRouter.post("/:channelId", authenticateToken, async (req: Request, res: R
         const channelsCollection: Collection = db.collection("channels");
         const messagesCollection: Collection = db.collection("messages");
         
-        const { content } = req.body;
-        const channelId = new ObjectId(req.params.channelId);
+        const { content, channelId } = req.body;
+        const user = (req as any).user;
         
         if (!content) {
             res.status(400).json({ error: "Message content is required" });
             return;
         }
-        
-        // Проверяем существование канала
-        const channel = await channelsCollection.findOne({ _id: channelId });
+
+        if (!channelId) {
+            res.status(400).json({ error: "ChannelId is required" });
+            return;
+        }
+
+        const channel = await channelsCollection.findOne({ _id: new ObjectId(channelId) });
         if (!channel) {
             res.status(404).json({ error: "Channel not found" });
             return;
         }
-        
+
+        // Проверяем, является ли канал приватным
+        if (channel.isPrivate && !user) {
+            res.status(401).json({ error: "Unauthorized", message: "Authentication required for private channels." });
+            return;
+        }
+
         const newMessage = {
-            senderId: new ObjectId((req as any).user.userId),
-            channelId: channelId,
+            senderId: user ? new ObjectId(user.userId) : null,
+            senderName: user ? user.name : "Guest",
+            channelId: new ObjectId(channelId),
             content: content,
             createdAt: new Date()
         };

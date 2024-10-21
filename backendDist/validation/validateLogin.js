@@ -1,9 +1,12 @@
-export const validateLogin = async (name, password, collection) => {
-    // Ищем пользователя в базе данных
-    const matchingUser = await collection.findOne({ name });
-    // Проверяем пароль
-    if (matchingUser && matchingUser.password === password) {
-        return matchingUser; // Возвращаем объект пользователя
+export async function validateLogin(username, password, collection) {
+    const user = await collection.findOne({ name: username });
+    if (user && user.password === password) { // В реальном приложении используйте безопасное сравнение паролей
+        if (user.isGuest) {
+            // Обновляем статус гостя на зарегистрированного пользователя
+            await collection.updateOne({ _id: user._id }, { $set: { isGuest: false } });
+            user.isGuest = false;
+        }
+        return user;
     }
-    return null; // Возвращаем null, если нет совпадений
-};
+    return null;
+}
