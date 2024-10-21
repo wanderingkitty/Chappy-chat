@@ -29,9 +29,20 @@ userRouter.post('/login', async (req: Request, res: Response): Promise<void> => 
         }
 
         // Create JWT
-        const payload = { userId: user._id.toString() };
+        const payload = { 
+            userId: user._id.toString(),
+            isGuest: user.isGuest
+        };
+
         const token: string = jwt.sign(payload, process.env.SECRET || '');
-        res.json({ jwt: token });
+        res.json({ 
+            jwt: token,
+            user: {
+                id: user._id,
+                name: user.name,
+                isGuest: user.isGuest
+            }
+         });
     } catch (error) {
         console.error('Error during login:', error);
         res.status(500).json({ error: "Server Error", message: "An error occurred during login." });
