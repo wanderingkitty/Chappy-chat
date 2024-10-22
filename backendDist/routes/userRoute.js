@@ -1,8 +1,9 @@
 import express from "express";
 import { connect } from "../data/dbConnection.js";
-import jwt from 'jsonwebtoken';
 import { validateLogin } from "../validation/validateLogin.js";
 import { loginSchema } from "../data/schema.js";
+import { authenticate } from "../data/authMiddleware.js";
+import jwt from 'jsonwebtoken';
 const userRouter = express.Router();
 /* The code snippet `userRouter.use((req: Request, _res: Response, next: NextFunction) => {
     console.log(`Request Method: ${req.method}, Request URL: ${req.url}`);
@@ -28,28 +29,10 @@ userRouter.use((req, _res, next) => {
  * next middleware function in the stack. This allows you to chain multiple middleware functions
  * together to handle a request in a modular way. In the
  */
-const authenticateJWT = (req, _res, next) => {
-    // Получаем токен напрямую из заголовка
-    const token = req.headers.authorization;
-    if (token && process.env.SECRET) {
-        try {
-            // Верифицируем токен
-            const verifiedUser = jwt.verify(token, process.env.SECRET);
-            // Если верификация успешна, добавляем информацию о пользователе к запросу
-            req.user = verifiedUser;
-        }
-        catch (error) {
-            // Если токен недействителен, просто продолжаем без установки пользователя
-            console.log('Invalid token:', error);
-        }
-    }
-    // Продолжаем обработку запроса в любом случае
-    next();
-};
 /* The `userRouter.get("/all", authenticateJWT, async (_req: Request, res: Response): Promise<void> =>
 { ... }` function in the provided TypeScript code is defining a route handler for a GET request to
 the '/all' endpoint. Here is a breakdown of what it is doing: */
-userRouter.get("/all", authenticateJWT, async (_req, res) => {
+userRouter.get("/all", authenticate, async (_req, res) => {
     try {
         const collection = await connect();
         const users = await collection.find({}, { projection: { password: 0 } }).toArray();
@@ -80,9 +63,11 @@ userRouter.post('/login', async (req, res) => {
             res.status(401).json({ error: "Unauthorized", message: "You are not authorized to access this resource." });
             return;
         }
+        console.log('User object:', user);
         // Create JWT
         const payload = {
             userId: user._id.toString(),
+            name: user.name,
             isGuest: user.isGuest
         };
         const token = jwt.sign(payload, process.env.SECRET || '');

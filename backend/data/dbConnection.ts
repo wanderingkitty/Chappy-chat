@@ -43,4 +43,3 @@ async function closeConnection(): Promise<void> {
 }
 
 export { connect, closeConnection, client, db };
-

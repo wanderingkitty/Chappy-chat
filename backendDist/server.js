@@ -4,6 +4,7 @@ import { userRouter } from './routes/userRoute.js';
 import { logWithLocation } from './helpers/betterConsoleLog.js';
 import { channelRouter } from './routes/channelRoute.js';
 import { messageRouter } from './routes/messageRoute.js';
+// import { privateMessageRouter } from './routes/privateMessageRoute.js'; 
 console.log('CONNECTION_STRING:', process.env.CONNECTION_STRING);
 const app = express();
 const port = process.env.PORT || 4444;
@@ -21,6 +22,7 @@ app.get('/', (_req, res) => {
 app.use('/users', userRouter);
 app.use('/channels', channelRouter);
 app.use('/messages', messageRouter);
+// app.use('/private', privateMessageRouter)
 /**
  * Start server
  */

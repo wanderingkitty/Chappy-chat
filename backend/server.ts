@@ -4,6 +4,7 @@ import { userRouter } from './routes/userRoute.js';
 import { logWithLocation } from './helpers/betterConsoleLog.js';
 import { channelRouter } from './routes/channelRoute.js';
 import { messageRouter } from './routes/messageRoute.js';
+// import { privateMessageRouter } from './routes/privateMessageRoute.js'; 
 
 
 
@@ -28,6 +29,7 @@ app.get('/', (_req: Request, res: Response) => {
 app.use('/users', userRouter);
 app.use('/channels', channelRouter);
 app.use('/messages', messageRouter)
+// app.use('/private', privateMessageRouter)
 /**
  * Start server
  */
