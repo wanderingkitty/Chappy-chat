@@ -2,7 +2,7 @@ import express, { Router, Request, Response, NextFunction } from "express";
 import { Collection } from "mongodb";
 import { connect } from "../data/dbConnection.js";
 import jwt from 'jsonwebtoken';
-import { User } from "../models/interfaces/user.js";
+import { User } from "../models/user.js";
 import { validateLogin } from "../validation/validateLogin.js";
 import { loginSchema } from "../data/schema.js"; 
 

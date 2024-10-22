@@ -1,5 +1,5 @@
 import { Collection } from "mongodb";
-import { User } from "../models/interfaces/user"; 
+import { User } from "../models/user"; 
 
 
 export type UserId = string

@@ -1,6 +1,6 @@
 import { MongoClient, Db, Collection } from "mongodb"; 
 import { logWithLocation } from "../helpers/betterConsoleLog.js";
-import { User } from "../models/interfaces/user.js"; 
+import { User } from "../models/user.js"; 
 import 'dotenv/config';
 
 const dbName = process.env.MONGODB_DB_NAME;
