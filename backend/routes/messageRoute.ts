@@ -3,6 +3,7 @@ import { Collection, ObjectId } from "mongodb";
 import { connect, db } from "../data/dbConnection.js";
 import { logWithLocation } from "../helpers/betterConsoleLog.js";
 import jwt from 'jsonwebtoken';
+import { messageSchema } from "../data/schema.js"; 
 
 /* The code snippet you provided is defining a middleware function called `authenticateToken` and
 creating a router instance called `messageRouter` using Express. Here's a breakdown of what each
@@ -67,6 +68,18 @@ messageRouter.get("/:channelId", authenticateToken, async (req: Request, res: Re
 Promise<void => { ... })` function is defining a route handler for handling POST requests to send a
 message to a specific channel. Here's a breakdown of what this function does: */
 messageRouter.post("/", authenticateToken, async (req: Request, res: Response): Promise<void> => {
+
+	const { error } = messageSchema.validate(req.body)
+
+	if(error){
+		res.status(400).json({
+			error: "Validation error",
+			message: error.message
+		})
+		return
+	}
+
+
     logWithLocation(`POST request to send a message received`, "info");
     
     try {
