@@ -1,0 +1,42 @@
+[
+	{
+		"_id": "6718d15497da05806e081542",
+		"senderId": "6717ee5036aaf96a8ec83c45",
+		"senderName": "alice_smith",
+		"channelId": "6717d79936aaf96a8ec83c3d",
+		"content": "Channel Rules:\n1. 🤝 Keep it Friendly\n  - Respect other members\n  - No harassment or hate speech\n  - Be patient with beginners\n2. 💻 Stay On Topic\n  - Keep discussions code and development focused\n  - Use appropriate channels for different topics\n  - Save casual chat for #general\n3. 📝 Share Code Properly\n  - Use code blocks for sharing code snippets\n  - Include relevant error messages\n  - Provide context when asking for help\n4. 🌟 Be Constructive\n  - Offer solutions, not criticism\n  - Acknowledge helpful responses\n  - Share knowledge to help others learn",
+		"createdAt": "2024-10-23T10:35:00.230Z"
+	},
+	{
+		"_id": "6718d2aa97da05806e081543",
+		"senderId": "6712436c6ad48371f079ad6d",
+		"senderName": "Captain Nemo",
+		"channelId": "6717d79936aaf96a8ec83c3d",
+		"content": "Hey everyone! I'm getting this TypeError when trying to map through my array: 'Cannot read properties of undefined (reading 'map')'. Here's my code:\n```js\nconst items = response.data;\nconst mappedItems = items.map(item => item.name);\n```\n",
+		"createdAt": "2024-10-23T10:40:42.900Z"
+	},
+	{
+		"_id": "6717ea5cb174552a75302558",
+		"senderId": "6712436c6ad48371f079ad6d",
+		"senderName": "Captain Nemo",
+		"channelId": "6717d79936aaf96a8ec83c3e",
+		"content": "Oh wow I fixed it!^^",
+		"createdAt": "2024-10-22T18:09:32.696Z"
+	},
+	{
+		"_id": "6717ef263e593a699823a322",
+		"senderId": "6717ee5036aaf96a8ec83c45",
+		"senderName": "alice_smith",
+		"channelId": "6717d79936aaf96a8ec83c3e",
+		"content": "Great congrats!",
+		"createdAt": "2024-10-22T18:29:58.267Z"
+	},
+	{
+		"_id": "6718d4b4037603b9e455bd7f",
+		"senderId": "6718d37b36aaf96a8ec83c4e",
+		"senderName": "legolas_elf",
+		"channelId": "6717d79936aaf96a8ec83c3c",
+		"content": "Hello everyone!",
+		"createdAt": "2024-10-23T10:49:24.921Z"
+	}
+]

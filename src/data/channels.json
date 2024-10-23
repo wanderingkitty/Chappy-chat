@@ -1,0 +1,23 @@
+[
+	{
+		"_id": "6717d79936aaf96a8ec83c3c",
+		"channelId": "ch_001",
+		"name": "Coding",
+		"isPrivate": false,
+		"members": []
+	},
+	{
+		"_id": "6717d79936aaf96a8ec83c3d",
+		"channelId": "ch_002",
+		"name": "Stack Overflow & Chill",
+		"isPrivate": true,
+		"members": []
+	},
+	{
+		"_id": "6717d79936aaf96a8ec83c3e",
+		"channelId": "ch_004",
+		"name": "Private messages",
+		"isPrivate": true,
+		"members": []
+	}
+]

@@ -1,68 +1,104 @@
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  min-width: 100vw;
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+#root {
+  width: 100vw;
+  min-height: 100vh;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+.start-page {
+  background-color: #1E1E1E;
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  overflow-x: hidden;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+.options-container {
+  display: flex;
+  gap: 4rem;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1400px; /* Увеличено с 1200px */
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.option-line {
+  height: 2px;
+  width: 150px; /* Увеличено со 100px */
+  background-color: #FFB800;
+  transition: width 0.3s ease;
+}
+
+.option-item:hover .option-line {
+  width: 200px; /* Увеличено со 150px */
+}
+
+/* Обновите медиа-запрос для лучшей адаптивности */
+@media (max-width: 1200px) {
+  .options-container {
+      gap: 4rem;
   }
-  a:hover {
-    color: #747bff;
+  
+  .option-line {
+      width: 100px;
   }
-  button {
-    background-color: #f9f9f9;
+  
+  .option-item:hover .option-line {
+      width: 150px;
+  }
+}
+
+@media (max-width: 968px) {
+  .options-container {
+      flex-direction: column;
+      gap: 4rem;
+  }
+
+  .right-options {
+      align-items: flex-start;
+  }
+
+  .right-options .option-item {
+      flex-direction: row;
+  }
+
+  .option-item:hover {
+      transform: translateX(10px);
+  }
+}
+
+@media (max-width: 480px) {
+  .options-container {
+      padding: 0 1rem;
+  }
+  
+  .option-line {
+      width: 50px;
+  }
+  
+  .option-item:hover .option-line {
+      width: 75px;
   }
 }

@@ -18,8 +18,6 @@ messageRouter.get("/:channelId", authenticate, async (req, res) => {
         const channelsCollection = db.collection("channels");
         const messageCollection = db.collection("messages");
         const channelId = new ObjectId(req.params.channelId);
-        console.log('GET channelId type:', typeof req.params.channelId, req.params.channelId);
-        console.log('GET ObjectId:', channelId);
         const channel = await channelsCollection.findOne({ _id: channelId });
         if (!channel) {
             res.status(404).json({ error: "Channel not found" });
@@ -31,8 +29,6 @@ messageRouter.get("/:channelId", authenticate, async (req, res) => {
             return;
         }
         const messages = await messageCollection.find({ channelId: channelId }).toArray();
-        console.log('Found messages:', messages); // Добавьте этот лог
-        console.log('Query params:', { channelId }); // И этот
         res.json(messages);
     }
     catch (error) {
@@ -52,22 +48,14 @@ messageRouter.post("/", authenticate, async (req, res) => {
         });
         return;
     }
-    logWithLocation(`POST request to send a message received`, "info");
     try {
         await connect();
         const channelsCollection = db.collection("channels");
         const messagesCollection = db.collection("messages");
         const { content, channelId } = req.body;
-        console.log('POST channelId type:', typeof channelId, channelId);
-        console.log('POST ObjectId:', new ObjectId(channelId));
         const user = req.user;
-        console.log('User in Message Route:', user);
-        if (!content) {
-            res.status(400).json({ error: "Message content is required" });
-            return;
-        }
-        if (!channelId) {
-            res.status(400).json({ error: "ChannelId is required" });
+        if (!content || !channelId) {
+            res.status(400).json({ error: "Content and channelId are required" });
             return;
         }
         const channel = await channelsCollection.findOne({ _id: new ObjectId(channelId) });
@@ -75,25 +63,19 @@ messageRouter.post("/", authenticate, async (req, res) => {
             res.status(404).json({ error: "Channel not found" });
             return;
         }
-        // Проверяем, является ли канал приватным
-        if (channel.isPrivate && !user) {
-            res.status(401).json({ error: "Unauthorized", message: "Authentication required for private channels." });
+        // Проверяем приватность канала и права доступа
+        if (channel.isPrivate && !req.user) {
+            res.status(403).json({ error: "Authentication required for private channels" });
             return;
         }
         const newMessage = {
             senderId: user ? new ObjectId(user.userId) : null,
-            // Добавим лог перед использованием user.name
-            senderName: user ? (() => {
-                console.log("User object for name:", user); // Добавьте этот лог
-                return user.name || "Unknown User"; // Добавим fallback "Unknown User"
-            })() : "Guest",
+            senderName: user ? user.name : "Guest",
             channelId: new ObjectId(channelId),
             content: content,
             createdAt: new Date()
         };
-        logWithLocation(`Attempting to insert message: ${JSON.stringify(newMessage)}`, "info");
         const result = await messagesCollection.insertOne(newMessage);
-        logWithLocation(`Message inserted with ID: ${result.insertedId}`, "info");
         res.status(201).json({
             message: "Message sent successfully",
             messageId: result.insertedId
