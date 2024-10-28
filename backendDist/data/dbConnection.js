@@ -20,7 +20,6 @@ async function connect() {
         await client.connect();
         db = client.db(dbName);
         logWithLocation(`Connected to ${dbName} successfully.`, "success");
-        return db.collection("users");
     }
     catch (error) {
         logWithLocation(`Failed to connect to ${dbName}. ${error}`, "error");

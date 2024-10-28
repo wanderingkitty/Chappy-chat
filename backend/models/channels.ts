@@ -2,8 +2,8 @@ import { ObjectId } from "mongodb";
 
 export interface Channel {
 	_id: ObjectId;
-	name: string;          // Название канала
+	name: string;         
 	channelId: string,
-	members: ObjectId[];   // Массив пользователей, которые входят в канал
+	members: ObjectId[];   
 	isPrivate: boolean,
 }

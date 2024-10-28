@@ -55,7 +55,7 @@ messageRouter.post("/", authenticate, async (req, res) => {
         const { content, channelId } = req.body;
         const user = req.user;
         if (!content || !channelId) {
-            res.status(400).json({ error: "Content and channelId are required" });
+            res.status(400).json({ error: "Content and channel ID are required" });
             return;
         }
         const channel = await channelsCollection.findOne({ _id: new ObjectId(channelId) });

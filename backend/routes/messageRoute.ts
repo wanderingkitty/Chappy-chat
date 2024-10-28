@@ -16,6 +16,7 @@ const messageRouter: Router = express.Router();
 Promise<void => { ... })` function is defining a route handler for handling GET requests to retrieve
 messages for a specific channel. Here's a breakdown of what this function does: */
 messageRouter.get("/:channelId", authenticate, async (req: Request, res: Response): Promise<void> => {
+    
     logWithLocation(`GET request to messages received for channel ${req.params.channelId}`, "info");
 
     try {
@@ -70,7 +71,7 @@ messageRouter.post("/", authenticate, async (req: Request, res: Response): Promi
         const user = (req as any).user;
         
         if (!content || !channelId) {
-            res.status(400).json({ error: "Content and channelId are required" });
+            res.status(400).json({ error: "Content and channel ID are required" });
             return;
         }
 

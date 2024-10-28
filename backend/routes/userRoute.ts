@@ -1,11 +1,11 @@
 import express, { Router, Request, Response, NextFunction } from "express";
 import { Collection } from "mongodb";
-import { connect } from "../data/dbConnection.js";
-import { User } from "../models/user.js";
+import { connect, db } from "../data/dbConnection.js";
 import { validateLogin } from "../validation/validateLogin.js";
 import { loginSchema } from "../data/schema.js"; 
 import { authenticate } from "../data/authMiddleware.js"; 
 import jwt from 'jsonwebtoken';
+import { User } from "../models/user.js";
 
 const userRouter: Router = express.Router();
 
@@ -41,8 +41,9 @@ userRouter.use((req: Request, _res: Response, next: NextFunction) => {
 the '/all' endpoint. Here is a breakdown of what it is doing: */
 userRouter.get("/all", authenticate, async (_req: Request, res: Response): Promise<void> => {
     try {
-        const collection: Collection<User> = await connect();
-        const users = await collection.find({}, { projection: { password: 0 } }).toArray();
+        await connect()
+        const userCollection: Collection = db.collection("users")
+        const users = await userCollection.find({}, { projection: { password: 0 } }).toArray();
         
         res.json(users);
     } catch (error) {
@@ -69,8 +70,9 @@ userRouter.post('/login', async (req: Request, res: Response): Promise<void> => 
     const { username, password } = req.body;
 
     try {
-        const collection: Collection<User> = await connect();
-        const user = await validateLogin(username, password, collection);
+        await connect()
+        const userCollection: Collection<User> = db.collection("users")
+        const user = await validateLogin(username, password, userCollection);
 
         if (!user) {
             res.status(401).json({ error: "Unauthorized", message: "You are not authorized to access this resource." });

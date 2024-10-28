@@ -9,7 +9,7 @@
 	},
 	{
 		"_id": "6718d2aa97da05806e081543",
-		"senderId": "6712436c6ad48371f079ad6d",
+		"senderId": "6717ee5036aaf96a8ec83c45",
 		"senderName": "Captain Nemo",
 		"channelId": "6717d79936aaf96a8ec83c3d",
 		"content": "Hey everyone! I'm getting this TypeError when trying to map through my array: 'Cannot read properties of undefined (reading 'map')'. Here's my code:\n```js\nconst items = response.data;\nconst mappedItems = items.map(item => item.name);\n```\n",

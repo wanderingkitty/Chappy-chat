@@ -1,6 +1,5 @@
-import { MongoClient, Db, Collection } from "mongodb"; 
+import { MongoClient, Db } from "mongodb"; 
 import { logWithLocation } from "../helpers/betterConsoleLog.js";
-import { User } from "../models/user.js"; 
 import 'dotenv/config';
 
 const dbName = process.env.MONGODB_DB_NAME;
@@ -21,18 +20,19 @@ let db: Db;
 /**
  * Establishes a connection to the database and returns the User collection.
  */
-async function connect(): Promise<Collection<User>> {
+async function connect(): Promise<void> { 
     try {
         await client.connect();
         db = client.db(dbName);
         logWithLocation(`Connected to ${dbName} successfully.`, "success");
-
-        return db.collection<User>("users");
     } catch (error) {
         logWithLocation(`Failed to connect to ${dbName}. ${error}`, "error");
         throw error; 
     }
+
+    
 }
+
 
 /**
  * Closes the database connection.

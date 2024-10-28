@@ -8,3 +8,7 @@ export const messageSchema = Joi.object({
     channelId: Joi.string().required(),
     content: Joi.string().required()
 });
+export const privateMessageSchema = Joi.object({
+    recipientId: Joi.string().required(),
+    content: Joi.string().required()
+});
