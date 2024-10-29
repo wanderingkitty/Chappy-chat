@@ -16,6 +16,7 @@ privateMessageRouter.post("/", authenticate, async (req: Request, res: Response)
 			error: "Validation error",
 			message: error.message
 		})
+		return
 	}
 
 	try {
@@ -25,10 +26,10 @@ privateMessageRouter.post("/", authenticate, async (req: Request, res: Response)
 
 		
         const user = (req as any).user;
-		const { content, recipientId } = req.body
+		const { content, recipientId, recipientName } = req.body
 
-		if(!content || !recipientId  ) {
-			res.status(400).json({ error: "Content and recipient ID are required" })
+		if(!content || !recipientId  || !recipientName ) {
+			res.status(400).json({ error: "Content and recipient ID  and recipient name are required" })
 			return
 		}
 
@@ -36,7 +37,7 @@ privateMessageRouter.post("/", authenticate, async (req: Request, res: Response)
 			participants: {
 				$all: [user.userId, recipientId],
 				$size: 2
-			}
+	 		}
 		})
 
 		let chatId: ObjectId;
@@ -44,7 +45,9 @@ privateMessageRouter.post("/", authenticate, async (req: Request, res: Response)
 		if(!chat) {
 			const newChat = await privateChatsCollection.insertOne({
 				participants: [user.userId, recipientId],
-				createdAt: new Date()
+				createdAt: new Date(),
+				recipientName: recipientName,
+				senderName: user.name
 			})
 			chatId = newChat.insertedId
 		} else {
@@ -56,6 +59,7 @@ privateMessageRouter.post("/", authenticate, async (req: Request, res: Response)
             senderId: new ObjectId(user.userId),
             senderName: user.name,
 			recipientId: new ObjectId(recipientId),
+			recipientName: recipientName,
             content: content,
             createdAt: new Date()
         };
@@ -74,6 +78,26 @@ privateMessageRouter.post("/", authenticate, async (req: Request, res: Response)
 		res.status(500).json({ error: "Internal server error"})
 	}
 })
+
+privateMessageRouter.get("/chat", authenticate, async (req: Request, res: Response) => {
+    try {
+        await connect();
+        const privateChatsCollection: Collection = db.collection("private-chats");
+        const user = (req as any).user;
+
+        // Находим все чаты, где пользователь является участником
+        const chats = await privateChatsCollection.find({
+            participants: { $in: [user.userId] }
+        }).toArray();
+
+        console.log("Found chats for user:", chats.length);
+        res.json(chats);
+
+    } catch (error) {
+        console.error("Error fetching chats:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
 
 
 /* This part of the code defines a route for handling GET requests to retrieve messages from a specific

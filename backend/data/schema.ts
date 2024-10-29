@@ -13,6 +13,7 @@ export const messageSchema = Joi.object({
 
 export const privateMessageSchema = Joi.object({
 	recipientId: Joi.string().required(),
+	recipientName: Joi.string().required(),
 	content: Joi.string().required()
 	
 })

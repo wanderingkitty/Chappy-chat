@@ -39,6 +39,8 @@ const HomePage = () => {
   const [user, setUser] = useState<User | null>(null);
   const [newMessage, setNewMessage] = useState<string>("");
 
+  
+
   const formatMessage = (content: string) => {
     // Если сообщение содержит код
     if (content.includes('```')) {

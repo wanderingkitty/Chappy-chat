@@ -28,7 +28,7 @@ const Login = () => {
                 // Сохраняем токен
                 localStorage.setItem('token', data.jwt);
                 setMessage('Успешный вход!');
-                navigate('/home');  // Перенаправление после успешного входа
+                navigate('/');  // Перенаправление после успешного входа
             } else {
                 setMessage(data.message || 'Ошибка входа');
             }

@@ -1,5 +1,21 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+
 import "./StartPage.css";
+import {  jwtDecode } from "jwt-decode";
+
+
+interface User {
+    name: string;
+    userId: string;
+}
+interface JwtPayload {
+    name: string;
+    userId: string;
+    [key: string]: any;
+}
+
+
 
 const StartPage = () => {
     const navigate = useNavigate();
@@ -10,10 +26,41 @@ const StartPage = () => {
 
     const handleNavigationClick = (path: string) => {
         navigate(path);
+        
     };
+ const [user, setUser] = useState<User | null>(null);
+
+ const handleLogUt = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    navigate('/');
+};
+
+    
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            try {
+                const userData = jwtDecode<JwtPayload>(token);
+                setUser({
+                    name: userData.name,
+                    userId: userData.userId,
+                });
+            } catch (error) {
+                console.error("Error decoding token:", error);
+                localStorage.removeItem("token");
+            }
+        }
+    }, []);
 
     return (
         <div className="start-page">
+                  <h1 className="user-header-main-page">
+                    Logged in as:{" "}
+                    <span className="username">{user ? user.name : "Guest"}</span>
+                    <button className="logout-btn" onClick={handleLogUt}>LOG OUT</button>
+                </h1>
+            
             <div className="options-container">
                 <div className="left-options">
                     <div
@@ -61,7 +108,7 @@ const StartPage = () => {
                     </div>
                     <div
                         className="option-item"
-                        onClick={() => handleNavigationClick("/messages")}
+                        onClick={() => handleNavigationClick("/private-messages")}
                     >
                         <span>PRIVATE MESSAGES</span>
                         <div className="option-line"></div>

@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import StartPage from './components/StartPage';
 import Login from './components/Login';
 import HomePage from './components/Home';
-import Messages from './components/Messages';  // Добавьте этот импорт
+import PrivateMessages from './components/PrivateMessages';
 
 function App() {
   return (
@@ -11,7 +11,7 @@ function App() {
         <Route path="/" element={<StartPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<HomePage />} />
-        <Route path="/messages" element={<Messages />} />
+        <Route path="/private-messages" element={<PrivateMessages />} />
       </Routes>
     </div>
   );

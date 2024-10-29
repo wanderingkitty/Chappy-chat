@@ -12,15 +12,16 @@ privateMessageRouter.post("/", authenticate, async (req, res) => {
             error: "Validation error",
             message: error.message
         });
+        return;
     }
     try {
         await connect();
         const privateChatsCollection = db.collection("private-chats");
         const privateMessagesCollection = db.collection("private-messages");
         const user = req.user;
-        const { content, recipientId } = req.body;
-        if (!content || !recipientId) {
-            res.status(400).json({ error: "Content and recipient ID are required" });
+        const { content, recipientId, recipientName } = req.body;
+        if (!content || !recipientId || !recipientName) {
+            res.status(400).json({ error: "Content and recipient ID  and recipient name are required" });
             return;
         }
         const chat = await privateChatsCollection.findOne({
@@ -33,7 +34,9 @@ privateMessageRouter.post("/", authenticate, async (req, res) => {
         if (!chat) {
             const newChat = await privateChatsCollection.insertOne({
                 participants: [user.userId, recipientId],
-                createdAt: new Date()
+                createdAt: new Date(),
+                recipientName: recipientName,
+                senderName: user.name
             });
             chatId = newChat.insertedId;
         }
@@ -45,6 +48,7 @@ privateMessageRouter.post("/", authenticate, async (req, res) => {
             senderId: new ObjectId(user.userId),
             senderName: user.name,
             recipientId: new ObjectId(recipientId),
+            recipientName: recipientName,
             content: content,
             createdAt: new Date()
         };
@@ -57,6 +61,23 @@ privateMessageRouter.post("/", authenticate, async (req, res) => {
     }
     catch (error) {
         console.log("Error sending message", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+privateMessageRouter.get("/chat", authenticate, async (req, res) => {
+    try {
+        await connect();
+        const privateChatsCollection = db.collection("private-chats");
+        const user = req.user;
+        // Находим все чаты, где пользователь является участником
+        const chats = await privateChatsCollection.find({
+            participants: { $in: [user.userId] }
+        }).toArray();
+        console.log("Found chats for user:", chats.length);
+        res.json(chats);
+    }
+    catch (error) {
+        console.error("Error fetching chats:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 });

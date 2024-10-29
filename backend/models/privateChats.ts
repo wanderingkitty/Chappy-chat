@@ -5,4 +5,5 @@ export interface PrivateChat {
 	participants: string[];
 	isPrivate: boolean,
 	createdAt: Date;
+	recipientName: string
 }

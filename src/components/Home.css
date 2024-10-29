@@ -58,6 +58,11 @@ ul {
    font-weight: 500;
 }
 
+.chat-panel {
+   color:#f3f4f6;
+
+}
+
 .private-icon {
    margin-left: 0.5rem;
    font-size: 0.875rem;
