@@ -1,7 +1,8 @@
 import express, { Router, Request, Response } from "express";
-import { Collection } from "mongodb";
+import { Collection, WithId } from "mongodb";
 import { connect, db } from "../data/dbConnection.js";
 import jwt from 'jsonwebtoken';
+import { Channel } from "../models/channels.js";
 
 const channelRouter: Router = express.Router();
 
@@ -12,7 +13,6 @@ interface Payload {
 
 
 channelRouter.get("/", async (req: Request, res: Response) => {
-    console.log("GET request to /channels received"); 
 
     if (!process.env.SECRET) {
         console.log("SECRET is not defined"); 
@@ -25,12 +25,12 @@ channelRouter.get("/", async (req: Request, res: Response) => {
 
     try {
         await connect();
-        const channelsCollection: Collection = db.collection("channels");
+        const channelsCollection: Collection<Channel> = db.collection("channels");
         
         if (!token) {
             console.log("No token provided, returning public channels");
-            // Пользователь не аутентифицирован, возвращаем только открытые каналы
-            const publicChannels = await channelsCollection.find({ isPrivate: false }).toArray();
+
+            const publicChannels: WithId<Channel>[] = await channelsCollection.find({ isPrivate: false }).toArray();
             res.json(publicChannels);
             return;
         }
@@ -40,14 +40,14 @@ channelRouter.get("/", async (req: Request, res: Response) => {
             payload = jwt.verify(token, process.env.SECRET) as Payload;
             console.log('Payload: ', payload);
         } catch (error) {
-            console.log("Token verification failed", error); // Добавьте эту строку
+            console.log("Token verification failed", error); 
             res.sendStatus(400); // bad request
             return;
         }
 
-        console.log("Token verified, returning all channels"); // Добавьте эту строку
-        // JWT верифицирован, возвращаем все каналы
-        const allChannels = await channelsCollection.find({}).toArray();
+        console.log("Token verified, returning all channels"); 
+
+        const allChannels: WithId<Channel>[] = await channelsCollection.find({}).toArray();
         res.json(allChannels);
 
     } catch (error) {

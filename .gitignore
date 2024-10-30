@@ -14,7 +14,7 @@ dist-ssr
 .DS_Store/
 .env
 *.map
-
+backendDist
 
 
 # Editor directories and files
