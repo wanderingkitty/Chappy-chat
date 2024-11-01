@@ -6,10 +6,16 @@ Documented with [https://writer.mintlify.com/](Mintlify Document Writer)
 
 ## Table of contents
 
+-  [Features](#features)
+-  [Tech Stack](#tech-stack)
+-  [Installatiob](#installation)
+-  [Database model](#database-model)
+-  [API Endpints](#api-endpoints)
+
 ## Features:
 
 
-
+### Database-model
 ### User model 
 
 | Property | Data Type | Description |
