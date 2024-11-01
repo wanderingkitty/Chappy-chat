@@ -8,11 +8,58 @@ Documented with [https://writer.mintlify.com/](Mintlify Document Writer)
 
 -  [Features](#features)
 -  [Tech Stack](#tech-stack)
--  [Installatiob](#installation)
+-  [Installation](#installation)
 -  [Database model](#database-model)
 -  [API Endpints](#api-endpoints)
 
 ## Features:
+
+-   **CRUD Operations**: Create, Read, Update, and Delete products.
+-   **Validation**: Validates product data using `Joi`.
+-   **REST API**: Follows RESTful standards for better scalability and maintainability.
+
+
+## Tech Stack
+
+-   **MongoDB** (to be integrated for data persistence)
+-   **Express.js** – Web framework for Node.js.
+-   **Node.js** – JavaScript runtime environment.
+-   **React** - A JavaScript library for building interactive user interfaces with a component-based architecture. In this project, it's used to create a real-time chat application.
+
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/wanderingkitty/Chappy-chat.git
+cd CHAPPY-CHAT
+```
+Install dependencies:
+
+```bash
+npm install
+```
+
+Make sure you have an .env file in your project root:
+
+```
+CONNECTION_STRING=mongodb+srv://alinaericson95:busia123@wanderingkitty.jvb7s.mongodb.net/
+PORT=1408
+MONGODB_DB_NAME=Chappy-chat
+
+```
+
+Replace `<userName> and <password> with your MongoDb username and password.`
+
+Start the develpment server:
+
+```bash
+ npm run backend
+ ```
+
+ The server will be live on `http://localhost:1408` (or your port in .env)
+Check package.json for other scripts, such as clean, build and so on.
 
 
 ### Database-model
