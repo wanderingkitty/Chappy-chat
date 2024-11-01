@@ -8,7 +8,6 @@ const privateMessageRouter = express.Router();
 
 privateMessageRouter.post("/", authenticate, async (req: Request, res: Response): Promise<void> => {
 
-	//JOI validera body
 	const { error } = privateMessageSchema.validate(req.body)
 
 	if(error) {
@@ -23,8 +22,6 @@ privateMessageRouter.post("/", authenticate, async (req: Request, res: Response)
 		await connect()
 		const privateChatsCollection: Collection = db.collection("private-chats")
 		const privateMessagesCollection: Collection = db.collection("private-messages")
-
-		
         const user = (req as any).user;
 		const { content, recipientId, recipientName } = req.body
 
@@ -111,8 +108,6 @@ privateMessageRouter.get("/chat/:chatId", authenticate, async (req: Request, res
         const user = (req as any).user;
         const chatId = req.params.chatId;
 
-        console.log("Looking for chat with ID:", chatId);
-
         const chat = await privateChatsCollection.findOne({
             _id: new ObjectId(chatId),
             participants: { $in: [user.userId] } 
@@ -129,8 +124,6 @@ privateMessageRouter.get("/chat/:chatId", authenticate, async (req: Request, res
             chatId: new ObjectId(chatId)
         }).toArray();
 
-
-        console.log("Found messages:", messages.length); 
 
         res.json(messages);
 

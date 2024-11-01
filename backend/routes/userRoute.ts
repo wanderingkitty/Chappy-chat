@@ -18,28 +18,10 @@ userRouter.use((req: Request, _res: Response, next: NextFunction) => {
     next();
 });
 
-/**
- * The function `authenticateJWT` extracts a token from the request header, verifies it using a secret
- * key, and attaches user information to the request if the token is valid.
- * @param {Request} req - The `req` parameter in the `authenticateJWT` function stands for the request
- * object. It contains information about the HTTP request being made, such as the headers, body,
- * parameters, and more. In this specific function, the `req` parameter is used to extract the JWT
- * token from the request
- * @param {Response} _res - The `_res` parameter in the `authenticateJWT` function represents the
- * response object in Express.js. It is typically used to send responses back to the client making the
- * request. In this function, it is passed as an argument but not used within the function itself. It
- * is common to see it included
- * @param {NextFunction} next - The `next` parameter in the `authenticateJWT` function is a callback
- * function that is passed to middleware functions in Express. When called, it passes control to the
- * next middleware function in the stack. This allows you to chain multiple middleware functions
- * together to handle a request in a modular way. In the
- */
-
-
 /* The `userRouter.get("/all", authenticateJWT, async (_req: Request, res: Response): Promise<void> =>
 { ... }` function in the provided TypeScript code is defining a route handler for a GET request to
 the '/all' endpoint. Here is a breakdown of what it is doing: */
-userRouter.get("/all", authenticate, async (_req: Request, res: Response): Promise<void> => {
+userRouter.get("/", authenticate, async (_req: Request, res: Response): Promise<void> => {
     try {
         await connect()
         const userCollection: Collection = db.collection("users")
@@ -51,7 +33,6 @@ userRouter.get("/all", authenticate, async (_req: Request, res: Response): Promi
         res.status(500).json({ error: "Server Error", message: "An error occurred while fetching users." });
     }
 });
-
 
 /* The `userRouter.post('/login', async (req: Request, res: Response): Promise<void> => { ... }`
 function in the provided TypeScript code is handling the POST request to the '/login' endpoint. Here
@@ -79,9 +60,7 @@ userRouter.post('/login', async (req: Request, res: Response): Promise<void> => 
             return;
         }
 
-        console.log('User object:', user);
 
-        // Create JWT
         const payload = {
             userId: user._id.toString(),
             name: user.name,

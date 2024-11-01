@@ -9,13 +9,12 @@ interface User {
     name: string;
     userId: string;
 }
+
 interface JwtPayload {
     name: string;
     userId: string;
     [key: string]: any;
 }
-
-
 
 const StartPage = () => {
     const navigate = useNavigate();
@@ -33,10 +32,10 @@ const StartPage = () => {
  const handleLogUt = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
+    setUser(null)
     navigate('/');
 };
 
-    
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
@@ -55,11 +54,15 @@ const StartPage = () => {
 
     return (
         <div className="start-page">
-                  <h1 className="user-header-main-page">
-                    Logged in as:{" "}
-                    <span className="username">{user ? user.name : "Guest"}</span>
+                 <h1 className="user-header-main-page">
+                Logged in as:{" "}
+                <span className="username">{user ? user.name : "Guest"}</span>
+                {user ? (
                     <button className="logout-btn" onClick={handleLogUt}>LOG OUT</button>
-                </h1>
+                ) : (
+                    <button className="logout-btn disabled" disabled>LOG OUT</button>
+                )}
+            </h1>
             
             <div className="options-container">
                 <div className="left-options">
@@ -106,19 +109,19 @@ const StartPage = () => {
                             </svg>
                         </div>
                     </div>
-                    <div
-                        className="option-item"
-                        onClick={() => handleNavigationClick("/private-messages")}
-                    >
-                        <span>PRIVATE MESSAGES</span>
-                        <div className="option-line"></div>
-                        <div className="option-icon message">
-                            <svg viewBox="0 0 24 24" className="message-icon">
-                                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
-                            </svg>
-                        </div>
+                <div
+                    className="option-item"
+                    onClick={() => handleNavigationClick("/private-messages")}
+                >
+                    <span>PRIVATE MESSAGES</span>
+                    <div className="option-line"></div>
+                    <div className="option-icon message">
+                        <svg viewBox="0 0 24 24" className="message-icon">
+                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+                        </svg>
                     </div>
                 </div>
+        </div>
             </div>
         </div>
     );

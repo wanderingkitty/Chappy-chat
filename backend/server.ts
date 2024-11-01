@@ -12,6 +12,7 @@ const app = express();
 const port = process.env.PORT || 4444;
 
 // Middleware
+app.use('/static', express.static('backendDist/'))
 app.use(express.json());
 app.use('/', (req, _res, next) => {
     console.log(`${req.method} ${req.url}`, req.body);

@@ -39,10 +39,7 @@ const HomePage = () => {
   const [user, setUser] = useState<User | null>(null);
   const [newMessage, setNewMessage] = useState<string>("");
 
-  
-
   const formatMessage = (content: string) => {
-    // Если сообщение содержит код
     if (content.includes('```')) {
       const [text, code] = content.split('```');
       return (
@@ -54,7 +51,6 @@ const HomePage = () => {
         </div>
       );
     }
-    // Обычное сообщение
     return <div className="regular-message">{content}</div>;
   };
 
@@ -145,9 +141,6 @@ const HomePage = () => {
           if (channelType === "CODING") {
             return channel.name === "Coding";
           } else if (channelType === "STACK") {
-            if (channel.isPrivate && !user) {
-              return false;
-            }
             return channel.name === "Stack Overflow & Chill";
           }
           return false;
@@ -210,45 +203,43 @@ const HomePage = () => {
       <div className="messages-panel">
         <div className="messages-container">
           <h2 className="messages-header">Messages</h2>
-
-          {selectedChannelId && (
+          
+          {channelType === "STACK" && (!user || user.name === 'Guest') ? (
+            <div className="unauthorized-message">
+              Sorry, this channel is only for authorized users. Please log in to start chatting.
+            </div>
+          ) : (
             <div>
-              {channels.find((c) => c._id === selectedChannelId)?.isPrivate &&
-              !user ? (
-                <div className="unauthorized-message">
-                  Sorry, this channel is only for authorized users
-                </div>
-              ) : (
-                <div className="messages-list">
-                  {messages.map((message) => (
-                    <div key={message._id} className="message-item">
-                      <div className="message-header">
-                        <div className="sender-name">{message.senderName}</div>
-                        <div className="message-time">
-                          {new Date(message.createdAt).toLocaleString()}
-                        </div>
-                      </div>
-                      <div className="message-content">
-                        {formatMessage(message.content)}
+              <div className="messages-list">
+                {messages.map((message) => (
+                  <div key={message._id} className={`message-item ${message.senderId === user?.userId ? 'message-own' : 'message-other'}`}>
+                    <div className="message-header">
+                      <div className="sender-name">{message.senderName}</div>
+                      <div className="message-time">
+                        {new Date(message.createdAt).toLocaleString()}
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-              
+                    <div className="message-content">
+                      {formatMessage(message.content)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="message-input-section"
+              >
               <div className="message-input-container">
-                <input
-                  type="text"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type a message..."
-                  className="message-input"
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      handleSendMessage();
-                    }
-                  }}
-                />
+              <textarea
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Type a message..."
+                className="message-input"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();  
+                    handleSendMessage(); 
+                  }
+                }}
+              />
                 <button 
                   onClick={handleSendMessage}
                   className="send-button"
@@ -257,6 +248,7 @@ const HomePage = () => {
                   Send
                 </button>
               </div>
+            </div>
             </div>
           )}
         </div>

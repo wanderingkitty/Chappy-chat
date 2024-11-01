@@ -55,7 +55,6 @@ body {
   width: 200px; /* Увеличено со 150px */
 }
 
-/* Обновите медиа-запрос для лучшей адаптивности */
 @media (max-width: 1200px) {
   .options-container {
       gap: 4rem;
@@ -89,16 +88,37 @@ body {
   }
 }
 
-@media (max-width: 480px) {
-  .options-container {
-      padding: 0 1rem;
+@media (max-width: 430px) {
+	
+	.option-item {
+    padding-top: 1.5em;
   }
-  
-  .option-line {
-      width: 50px;
+
+  .user-header-main-page {
+    margin-bottom: 1.5em;
   }
-  
-  .option-item:hover .option-line {
-      width: 75px;
+
+  .main-logo {
+    width: 130px;
+		height: 130px;
   }
+
 }
+
+@media (max-width: 375px) {
+	
+	.option-item {
+    padding-top: 1.5em;
+  }
+
+  .user-header-main-page {
+    margin-bottom: 1.5em;
+  }
+
+  .main-logo {
+    width: 100px;
+		height: 100px;
+  }
+
+}
+

@@ -119,7 +119,6 @@
 	font-size: 2.5rem;
  }
  
- /* Анимации при наведении */
  .left-options .option-item:hover {
 	transform: translateX(10px);
  }
@@ -133,7 +132,7 @@
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    position: relative; /* Добавляем для создания контекста */
+    position: relative; 
 }
 
 .option-icon.message {
@@ -149,15 +148,81 @@
 }
 
 .user-header-main-page {
-	font-size: 2.5rem;
+	font-size: 1.5rem;
 	font-weight: bold;
 	margin-bottom: 5rem;
 	color:#f3f4f6;
+	text-align: center;
 }
 
  
- /* Медиа-запросы */
- @media (max-width: 1400px) {
+ .app-container {
+	width: 100vw;
+	min-height: 100vh;
+	overflow-x: hidden;
+	background-color:#2f3136;
+	color:#f3f4f6;
+ }
+ 
+ .start-page::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.1);
+	pointer-events: none;
+ }
+ 
+ .options-container {
+	position: relative;
+	z-index: 1;
+ }
+ 
+ .option-item {
+	position: relative;
+	padding: 0.5rem 0;
+ }
+ 
+ .option-icon svg {
+	transition: transform 0.3s ease;
+ }
+ 
+ .option-item:hover .option-icon svg {
+	transform: scale(1.3);
+ }
+
+ .logout-btn {
+	width: 100%;
+    padding: 5px;
+    background: linear-gradient(135deg, #ffc400 0%, #31303B 100%); 
+    color: #f3f4f6;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: opacity 0.2s;
+	font-size: 1rem;
+ }
+
+ .logout-btn:hover {
+	cursor: pointer;
+	background: linear-gradient(135deg, #403d31 0%, #31303B 100%); 
+ }
+
+ .logout-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.option-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+@media (max-width: 1400px) {
 	.option-line {
 		width: 120px;
 	}
@@ -254,63 +319,4 @@
 		height: 24px;
 	}
  }
- 
- /* Дополнительные стили для плавности */
- .app-container {
-	width: 100vw;
-	min-height: 100vh;
-	overflow-x: hidden;
-	background-color:#2f3136;
-	color:#f3f4f6;
- }
- 
- /* Стили для overlay эффекта (опционально) */
- .start-page::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background: rgba(0, 0, 0, 0.1);
-	pointer-events: none;
- }
- 
- /* Обеспечиваем, что контент поверх overlay */
- .options-container {
-	position: relative;
-	z-index: 1;
- }
- 
- /* Дополнительные стили для лучшей читаемости */
- .option-item {
-	position: relative;
-	padding: 0.5rem 0;
- }
- 
- /* Улучшенная анимация для иконок */
- .option-icon svg {
-	transition: transform 0.3s ease;
- }
- 
- .option-item:hover .option-icon svg {
-	transform: scale(1.3);
- }
 
- .logout-btn {
-	width: 100%;
-    padding: 10px;
-    background: linear-gradient(135deg, #ffc400 0%, #31303B 100%); 
-    color: #f3f4f6;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: opacity 0.2s;
-	font-size: 1rem;
- }
-
- .logout-btn:hover {
-	cursor: pointer;
-	background: linear-gradient(135deg, #403d31 0%, #31303B 100%); 
- }

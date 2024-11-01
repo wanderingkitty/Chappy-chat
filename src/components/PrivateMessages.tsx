@@ -3,11 +3,13 @@ import { jwtDecode } from "jwt-decode";
 import "./Home.css";
 
 interface JwtPayload {
+    _id: string;   
     name: string;
     userId: string;
     [key: string]: any;
 }
 interface User {
+    _id: string;  
     name: string;
     userId: string;
 }
@@ -27,10 +29,35 @@ const PrivateMessages = () => {
     const [user, setUser] = useState<User | null>(null);
     const [chats, setChats] = useState<any[]>([]);
     const [newMessage, setNewMessage] = useState<string>("");
+    const [usersList, setUsersList] = useState<User[]>([])
 
- 
+    useEffect(() => {
+        const fetchUsers = async () => {
+
+            try {
+                const headers: HeadersInit = {};
+                const token = localStorage.getItem("token");
+                if (token) {
+                    headers.Authorization = token;
+                }
+                const response = await fetch("/api/users", { headers })
+                if (!response.ok) {
+                    throw new Error('Network response was not ok')
+                }
+                const data = await response.json()
+                setUsersList(data)
+            } catch (error) {
+                console.error("Error fetching users:", error);
+            }
+        }
+        fetchUsers();
+    }, [user])
+
     useEffect(() => {
         const fetchChats = async () => {
+            if (!user || user.name === 'Guest') {
+                return;
+            }
             try {
                 const headers: HeadersInit = {};
                 const token = localStorage.getItem("token");
@@ -53,7 +80,9 @@ const PrivateMessages = () => {
             }
         };
         fetchChats();
-    }, []);
+    }, [user]);
+
+
 
     useEffect(() => {
         const fetchPrivateMessages = async () => {
@@ -84,7 +113,7 @@ const PrivateMessages = () => {
             }
         };
 
-        fetchPrivateMessages(); // Загружаем приватные сообщения каждый раз, когда выбранный чат изменяется
+        fetchPrivateMessages();
     }, [selectedChannelId]);
 
     useEffect(() => {
@@ -93,6 +122,7 @@ const PrivateMessages = () => {
             try {
                 const userData = jwtDecode<JwtPayload>(token);
                 setUser({
+                    _id: userData._id,  
                     name: userData.name,
                     userId: userData.userId,
                 });
@@ -106,18 +136,18 @@ const PrivateMessages = () => {
     const handleSendMessage = async () => {
         // 1. Проверяем, есть ли сообщение и выбранный чат
         if (!newMessage.trim() || !selectedChannelId) return;
-     
+
         try {
             // 2. Готовим заголовки с токеном
             const headers: HeadersInit = {
                 'Content-Type': 'application/json',
                 'Authorization': localStorage.getItem("token") || ''
             };
-     
+
             // 3. Находим информацию о получателе из текущего чата
             const currentChat = chats.find(chat => chat._id === selectedChannelId);
             if (!currentChat) return;
-     
+
             // 4. Отправляем запрос
             const response = await fetch('/api/private-messages', {
                 method: 'POST',
@@ -128,12 +158,12 @@ const PrivateMessages = () => {
                     recipientName: currentChat.recipientName // Имя получателя
                 })
             });
-     
+
             // 5. Проверяем успешность запроса
             if (response.ok) {
                 // 6. Очищаем поле ввода
                 setNewMessage('');
-                
+
                 // 7. Обновляем список сообщений
                 const updatedResponse = await fetch(`/api/private-messages/chat/${selectedChannelId}`, {
                     headers: { 'Authorization': localStorage.getItem("token") || '' }
@@ -146,48 +176,69 @@ const PrivateMessages = () => {
         } catch (error) {
             console.error("Error sending message:", error);
         }
-     };
+    };
 
-     return (
+    return (
         <div className="home-container">
             <div className="channels-panel">
                 <h1 className="user-header">
                     Logged in as:{" "}
                     <span className="username">{user ? user.name : "Guest"}</span>
                 </h1>
-                
+                <div className="chats-section">
+                    
                 <div className="channels-list">
                     {chats.map((chat) => {
                         // Определяем, является ли текущий пользователь отправителем
                         const isSender = chat.participants[0] === user?.userId;
                         // Выбираем имя собеседника в зависимости от роли пользователя
                         const chatName = isSender ? chat.recipientName : chat.senderName;
-     
+                        
                         return (
                             <div
-                                key={chat._id}
-                                onClick={() => setSelectedChannelId(chat._id)}
-                                className={`channel-item ${selectedChannelId === chat._id ? "selected" : ""}`}
+                            key={chat._id}
+                            onClick={() => setSelectedChannelId(chat._id)}
+                            className={`channel-item ${selectedChannelId === chat._id ? "selected" : ""}`}
                             >
                                 <span> Chat with {chatName || "Unknown"}</span>
                             </div>
                         );
                     })}
+                    </div>
+                </div>
+
+                <div className="users-section">
+                    <h3>Chappy-chat users:</h3>
+                    <div className="users-list">
+
+                        {usersList.map(user => (
+                            <div
+                            key={user._id}
+                            className="user-item"
+                            >
+                                {user.name}
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
-     
+
             <div className="messages-panel">
                 <div className="messages-container">
                     <h2 className="messages-header">Messages</h2>
-                    {selectedChannelId && !user && (
+                    {!user || user.name === 'Guest' ? (
                         <div className="unauthorized-message">
-                            Sorry, private messages are only for authorized users
+                            Sorry, private messages are only for authorized users. Please, log in to start chatting.
                         </div>
+                    ) : (
+                        <>
+                        </>
                     )}
                     {selectedChannelId && user && (
                         <div className="messages-list">
                             {privateMessages.map((message) => (
-                                <div key={message._id} className="message-item">
+                                <div key={message._id}  className={`message-item ${message.senderId === user?.userId ? 'message-own' : 'message-other'}`}
+                                >
                                     <div className="message-header">
                                         <div className="sender-name">{message.senderName}</div>
                                         <div className="message-time">
@@ -223,7 +274,7 @@ const PrivateMessages = () => {
                 </div>
             </div>
         </div>
-     );
+    );
 };
 
 export default PrivateMessages;

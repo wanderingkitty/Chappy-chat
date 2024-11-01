@@ -10,8 +10,6 @@ creating a router instance called `messageRouter` using Express. Here's a breakd
 part of the code is doing: */
 const messageRouter: Router = express.Router();
 
-
-
 /* The `messageRouter.get("/:channelId", authenticateToken, async (req: Request, res: Response):
 Promise<void => { ... })` function is defining a route handler for handling GET requests to retrieve
 messages for a specific channel. Here's a breakdown of what this function does: */
@@ -32,12 +30,22 @@ messageRouter.get("/:channelId", authenticate, async (req: Request, res: Respons
             return;
         }
 
-        // Проверяем, открытый ли канал и аутентифицирован ли пользователь
+/* This code snippet is checking if the channel is marked as private (`channel.isPrivate`) and
+if the user is not authenticated (`!(req as any).user`). If both conditions are met, it means
+that authentication is required to access this private channel. In that case, the code
+responds with a 403 status code (Forbidden) and sends a JSON response indicating that
+authentication is required for private channels. Finally, the `return;` statement is used to
+exit the function early if this condition is met, preventing further execution of the code
+block. */
         if (channel.isPrivate && !(req as any).user) {
             res.status(403).json({error: "Authentication required for private channels"});
             return;
         }
 
+/* The code snippet `const messages = await messageCollection.find({ channelId: channelId
+}).toArray();` is querying the `messageCollection` to find all messages that belong to a specific
+channel identified by the `channelId`. It uses the `find` method with a filter object to specify
+that only messages with the matching `channelId` should be retrieved. */
         const messages = await messageCollection.find({ channelId: channelId }).toArray();
         
         res.json(messages);
@@ -81,7 +89,6 @@ messageRouter.post("/", authenticate, async (req: Request, res: Response): Promi
             return;
         }
 
-        // Проверяем приватность канала и права доступа
         if (channel.isPrivate && !(req as any).user) {
             res.status(403).json({error: "Authentication required for private channels"});
             return;

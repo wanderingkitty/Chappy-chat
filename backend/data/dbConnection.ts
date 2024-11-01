@@ -33,7 +33,6 @@ async function connect(): Promise<void> {
     
 }
 
-
 /**
  * Closes the database connection.
  */

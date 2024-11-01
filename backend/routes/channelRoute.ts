@@ -1,15 +1,10 @@
 import express, { Router, Request, Response } from "express";
 import { Collection, WithId } from "mongodb";
 import { connect, db } from "../data/dbConnection.js";
-import jwt from 'jsonwebtoken';
 import { Channel } from "../models/channels.js";
 
 const channelRouter: Router = express.Router();
 
-interface Payload {
-    userId: string;
-    iat: number;
-}
 
 
 channelRouter.get("/", async (req: Request, res: Response) => {
@@ -21,7 +16,6 @@ channelRouter.get("/", async (req: Request, res: Response) => {
     }
 
     let token = req.headers.authorization;
-    console.log('Header:', token);
 
     try {
         await connect();
@@ -35,18 +29,12 @@ channelRouter.get("/", async (req: Request, res: Response) => {
             return;
         }
 
-        let payload: Payload;
         try {
-            payload = jwt.verify(token, process.env.SECRET) as Payload;
-            console.log('Payload: ', payload);
         } catch (error) {
             console.log("Token verification failed", error); 
             res.sendStatus(400); // bad request
             return;
         }
-
-        console.log("Token verified, returning all channels"); 
-
         const allChannels: WithId<Channel>[] = await channelsCollection.find({}).toArray();
         res.json(allChannels);
 
