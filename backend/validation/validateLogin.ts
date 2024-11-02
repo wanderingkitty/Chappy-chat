@@ -5,6 +5,7 @@ export type UserId = string
 
 export async function validateLogin(username: string, password: string, collection: Collection<User>): Promise<User | null> {
     const user = await collection.findOne({ name: username });
+    console.log("Fetched user from DB:", user); 
     
     if (user && user.password === password) {
         if (user.isGuest) {

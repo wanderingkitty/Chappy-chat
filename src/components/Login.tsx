@@ -8,6 +8,7 @@ const Login = () => {
     const [message, setMessage] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
+    
 
     const handleLogin = async () => {
         try {
@@ -26,7 +27,9 @@ const Login = () => {
 
             if (response.ok) {
                 // Сохраняем токен
+                const token = data.jwt;
                 localStorage.setItem('token', data.jwt);
+                console.log("Stored token for legolas_elf:", token);
                 setMessage('Успешный вход!');
                 navigate('/');  // Перенаправление после успешного входа
             } else {

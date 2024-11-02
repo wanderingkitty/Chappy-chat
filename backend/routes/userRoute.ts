@@ -1,5 +1,5 @@
 import express, { Router, Request, Response, NextFunction } from "express";
-import { Collection } from "mongodb";
+import { Collection, WithId } from "mongodb";
 import { connect, db } from "../data/dbConnection.js";
 import { validateLogin } from "../validation/validateLogin.js";
 import { loginSchema } from "../data/schema.js"; 
@@ -24,8 +24,8 @@ the '/all' endpoint. Here is a breakdown of what it is doing: */
 userRouter.get("/", authenticate, async (_req: Request, res: Response): Promise<void> => {
     try {
         await connect()
-        const userCollection: Collection = db.collection("users")
-        const users = await userCollection.find({}, { projection: { password: 0 } }).toArray();
+        const userCollection: Collection<User> = db.collection("users")
+        const users: WithId<User>[] = await userCollection.find({}, { projection: { password: 0 } }).toArray();
         
         res.json(users);
     } catch (error) {
@@ -62,7 +62,7 @@ userRouter.post('/login', async (req: Request, res: Response): Promise<void> => 
 
 
         const payload = {
-            userId: user._id.toString(),
+            _id: user._id.toString(),
             name: user.name,
             isGuest: user.isGuest
         };

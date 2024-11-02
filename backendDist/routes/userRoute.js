@@ -50,7 +50,7 @@ userRouter.post('/login', async (req, res) => {
             return;
         }
         const payload = {
-            userId: user._id.toString(),
+            _id: user._id.toString(),
             name: user.name,
             isGuest: user.isGuest
         };

@@ -25,14 +25,14 @@ privateMessageRouter.post("/", authenticate, async (req, res) => {
         }
         const chat = await privateChatsCollection.findOne({
             participants: {
-                $all: [user.userId, recipientId],
+                $all: [user._id, recipientId],
                 $size: 2
             }
         });
         let chatId;
         if (!chat) {
             const newChat = await privateChatsCollection.insertOne({
-                participants: [user.userId, recipientId],
+                participants: [user._id, recipientId],
                 createdAt: new Date(),
                 recipientName: recipientName,
                 senderName: user.name
@@ -44,7 +44,7 @@ privateMessageRouter.post("/", authenticate, async (req, res) => {
         }
         const newMessage = {
             chatId: chatId,
-            senderId: new ObjectId(user.userId),
+            senderId: new ObjectId(user._id),
             senderName: user.name,
             recipientId: new ObjectId(recipientId),
             recipientName: recipientName,
@@ -70,7 +70,7 @@ privateMessageRouter.get("/chat", authenticate, async (req, res) => {
         const user = req.user;
         // Находим все чаты, где пользователь является участником
         const chats = await privateChatsCollection.find({
-            participants: { $in: [user.userId] }
+            participants: { $in: [user._id] }
         }).toArray();
         console.log("Found chats for user:", chats.length);
         res.json(chats);
@@ -91,7 +91,7 @@ privateMessageRouter.get("/chat/:chatId", authenticate, async (req, res) => {
         const chatId = req.params.chatId;
         const chat = await privateChatsCollection.findOne({
             _id: new ObjectId(chatId),
-            participants: { $in: [user.userId] }
+            participants: { $in: [user._id] }
         });
         if (!chat) {
             res.status(403).json({

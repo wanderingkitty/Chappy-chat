@@ -11,7 +11,6 @@ interface JwtPayload {
 interface User {
     _id: string;  
     name: string;
-    userId: string;
 }
 
 interface Message {
@@ -55,33 +54,36 @@ const PrivateMessages = () => {
 
     useEffect(() => {
         const fetchChats = async () => {
-            if (!user || user.name === 'Guest') {
-                return;
+            if (!user || user.name === 'Guest' || !user._id) {
+                console.log("User is not valid, skipping chat fetch.");
+                return; 
             }
+            console.log("Fetching chats for user:", user.name);
+    
             try {
                 const headers: HeadersInit = {};
                 const token = localStorage.getItem("token");
                 if (token) {
                     headers.Authorization = token;
                 }
-
+    
                 const response = await fetch("/api/private-messages/chat", { headers });
                 if (!response.ok) {
                     throw new Error("Network response was not ok");
                 }
                 const data = await response.json();
+                console.log("Fetched chats:", data); // Log fetched chats
                 setChats(data);
-
-                // if (data.length > 0) {
-                //     setSelectedChannelId(data[0]._id);
-                //   }
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.error("Error fetching chats:", error);
             }
         };
+    
         fetchChats();
     }, [user]);
-
+    
+    
+    
 
 
     useEffect(() => {
@@ -95,7 +97,6 @@ const PrivateMessages = () => {
                     headers.Authorization = token;
                 }
 
-                console.log("Fetching messages for chat ID:", selectedChannelId);
                 const response = await fetch(
                     `/api/private-messages/chat/${selectedChannelId}`,
                     {
@@ -121,10 +122,11 @@ const PrivateMessages = () => {
         if (token) {
             try {
                 const userData = jwtDecode<JwtPayload>(token);
+                console.log("Decoded user data:", userData); // Log the user data
+    
                 setUser({
-                    _id: userData._id,  
+                    _id: userData.userId || userData._id,  // Adjust here if necessary
                     name: userData.name,
-                    userId: userData.userId,
                 });
             } catch (error) {
                 console.error("Error decoding token:", error);
@@ -132,39 +134,34 @@ const PrivateMessages = () => {
             }
         }
     }, []);
+    
 
     const handleSendMessage = async () => {
-        // 1. Проверяем, есть ли сообщение и выбранный чат
         if (!newMessage.trim() || !selectedChannelId) return;
 
         try {
-            // 2. Готовим заголовки с токеном
             const headers: HeadersInit = {
                 'Content-Type': 'application/json',
                 'Authorization': localStorage.getItem("token") || ''
             };
 
-            // 3. Находим информацию о получателе из текущего чата
             const currentChat = chats.find(chat => chat._id === selectedChannelId);
             if (!currentChat) return;
 
-            // 4. Отправляем запрос
             const response = await fetch('/api/private-messages', {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({
                     content: newMessage,
-                    recipientId: currentChat.participants.find((id: string | undefined) => id !== user?.userId), // ID получателя
-                    recipientName: currentChat.recipientName // Имя получателя
+                    recipientId: currentChat.participants.find((id: string | undefined) => id !== user?._id),
+                    recipientName: currentChat.recipientName
                 })
             });
 
-            // 5. Проверяем успешность запроса
             if (response.ok) {
-                // 6. Очищаем поле ввода
+          
                 setNewMessage('');
 
-                // 7. Обновляем список сообщений
                 const updatedResponse = await fetch(`/api/private-messages/chat/${selectedChannelId}`, {
                     headers: { 'Authorization': localStorage.getItem("token") || '' }
                 });
@@ -177,6 +174,39 @@ const PrivateMessages = () => {
             console.error("Error sending message:", error);
         }
     };
+    
+    const handleUserSelect = async (selectedUser: User) => {
+   
+            try {
+                const headers: HeadersInit = {
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem("token") || ''
+                };
+    
+                const response = await fetch('/api/private-messages/chat', {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({
+                        recipientId: selectedUser._id,
+                        recipientName: selectedUser.name
+                    })
+                });
+    
+                if (response.ok) {
+                    const newChatData = await response.json();
+                    setSelectedChannelId(newChatData._id);
+                    setChats(prevChats => [...prevChats, newChatData]);
+
+                } else {
+                    const errorData = await response.json();
+                    console.error('Failed to create chat', errorData);
+                }
+            } catch (error) {
+                console.error("Error creating chat and sending message:", error);
+            }
+        }
+    
+    
 
     return (
         <div className="home-container">
@@ -190,7 +220,7 @@ const PrivateMessages = () => {
                 <div className="channels-list">
                     {chats.map((chat) => {
                         // Определяем, является ли текущий пользователь отправителем
-                        const isSender = chat.participants[0] === user?.userId;
+                        const isSender = chat.participants[0] === user?._id;
                         // Выбираем имя собеседника в зависимости от роли пользователя
                         const chatName = isSender ? chat.recipientName : chat.senderName;
                         
@@ -215,6 +245,7 @@ const PrivateMessages = () => {
                             <div
                             key={user._id}
                             className="user-item"
+                            onClick={() => handleUserSelect(user)}
                             >
                                 {user.name}
                             </div>
@@ -237,7 +268,7 @@ const PrivateMessages = () => {
                     {selectedChannelId && user && (
                         <div className="messages-list">
                             {privateMessages.map((message) => (
-                                <div key={message._id}  className={`message-item ${message.senderId === user?.userId ? 'message-own' : 'message-other'}`}
+                                <div key={message._id}  className={`message-item ${message.senderId === user?._id ? 'message-own' : 'message-other'}`}
                                 >
                                     <div className="message-header">
                                         <div className="sender-name">{message.senderName}</div>

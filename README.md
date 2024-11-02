@@ -99,3 +99,4 @@ Check package.json for other scripts, such as clean, build and so on.
 | recipientName | string | The name for the user who receives the message. |
 
 ## API Endpoints
+
