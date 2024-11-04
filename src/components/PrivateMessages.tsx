@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import "./Home.css";
 import { useUserStore } from "../stores/userStore";
-import { User } from "../types";
+import { User } from "../types/index";
 
 interface JwtPayload {
     _id: string;   

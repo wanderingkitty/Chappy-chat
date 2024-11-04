@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import "./Home.css";
+import leftArrow from '../assets/left-arrow.png'; 
 // import { useUserStore } from "../stores/userStore";
 
 interface Channel {
@@ -228,6 +229,11 @@ return (
   <div className="home-container">
     <div className="channels-panel">
       <h1 className="user-header">
+        <div className="arrow-btn">
+          <button className="back-btn">
+            <img src={leftArrow} alt="arrow pixel button image" />
+          </button>
+        </div>
         Logged in as:{" "}
         <span className="username">{user ? user.name : "Guest"}</span>
       </h1>
