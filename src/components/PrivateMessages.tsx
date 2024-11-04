@@ -326,7 +326,7 @@ const PrivateMessages = () => {
                     <div className="users-list">
 
                         {usersList
-                        .filter(listUser => listUser._id !== currentUser?._id)
+                        .filter(listUser => listUser._id !== user?._id)
                         .map(user => (
                             <div
                             key={user._id}

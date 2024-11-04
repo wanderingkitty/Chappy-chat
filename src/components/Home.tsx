@@ -94,9 +94,7 @@ const fetchMessages = async () => {
           }
           throw new Error(`HTTP error! status: ${response.status}`);
       }
-
       const data = await response.json();
-      console.log("Received messages:", data); // Log the messages received
       setMessages(data);
   } catch (error) {
       console.error("Error fetching messages:", error);
@@ -113,8 +111,12 @@ const handleSendMessage = async () => {
     const token = localStorage.getItem("token");
     if (token) {
       headers.Authorization = token;
+    } else {
+      // Для гостей можно добавить специальный заголовок
+      headers['X-Guest-Access'] = 'true';
+      // Или отправить информацию о госте в теле запроса
     }
-    console.log("Sending message with user ID:", user?._id); 
+
     const response = await fetch('/api/messages', {
       method: 'POST',
       headers,
@@ -139,8 +141,6 @@ useEffect(() => {
   if (token) {
       try {
           const userData = jwtDecode<JwtPayload>(token);
-          console.log("Decoded user data:", userData);
-
           setUser({
               _id: userData._id,  
               name: userData.name,
@@ -224,145 +224,139 @@ const handleChannelClick = (channelId: string) => {
 };
 
 
-  return (
-    <div className="home-container">
-      <div className="channels-panel">
-        <h1 className="user-header">
-          Logged in as:{" "}
-          <span className="username">{user ? user.name : "Guest"}</span>
-        </h1>
+return (
+  <div className="home-container">
+    <div className="channels-panel">
+      <h1 className="user-header">
+        Logged in as:{" "}
+        <span className="username">{user ? user.name : "Guest"}</span>
+      </h1>
 
-        {channelType === "CODING" && user && (
-                    <div className="create-channel-section">
-                        {!showNewChannelInput ? (
-                            <button 
-                                className="create-channel-btn"
-                                onClick={() => setShowNewChannelInput(true)}
-                            >
-                                + Create Channel
-                            </button>
-                        ) : (
-                            <div className="new-channel-input-container">
-                                <input
-                                    type="text"
-                                    value={newChannelName}
-                                    onChange={(e) => setNewChannelName(e.target.value)}
-                                    placeholder="Channel name..."
-                                    className="new-channel-input"
-                                />
-                                <button 
-                                    onClick={handleCreateChannel}
-                                    className="create-btn"
-                                >
-                                    Create
-                                </button>
-                                <button 
-                                    onClick={() => setShowNewChannelInput(false)}
-                                    className="cancel-btn"
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-        <ul className="channels-list">
-          {channels.map((channel) => {
-           
-            let channelClass = "channel-item";
-            if (selectedChannelId === channel._id) {
-              channelClass += " selected";
-            }
-
-            return (
-              <li
-                key={channel._id}
-                onClick={() => handleChannelClick(channel._id)}
-                className={channelClass}
-              >
-                <div className="channel-content">
-                  <span className="channel-name">{channel.name}</span>
-                  {channel.isPrivate && (
-                    <span className="private-icon">🔒</span>
-                  )}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-
-      <div className="messages-panel">
-        <div className="messages-container">
-          <h2 className="messages-header">Messages</h2>
-          
-          {channelType === "STACK" && (!user || user.name === 'Guest') ? (
-            <div className="unauthorized-message">
-              Sorry, this channel is only for authorized users. Please log in to start chatting.
-            </div>
+      {channelType === "CODING" && user && (
+        <div className="create-channel-section">
+          {!showNewChannelInput ? (
+            <button 
+              className="create-channel-btn"
+              onClick={() => setShowNewChannelInput(true)}
+            >
+              + Create Channel
+            </button>
           ) : (
-            <div>
-              <div className="messages-list">
-              {messages.length === 0 ? (
-                <div className="no-messages">
-                    No messages yet. Start the conversation!
-                </div>
-                ) : (
-                  messages.map((message) => {
-                    console.log("Current User ID:", user?._id);
-                    console.log("Message Sender ID:", message.senderId);
-                    const isOwnMessage = user && user._id === String(message.senderId);
-                    console.log("Is Own Message:", isOwnMessage);
-
-                  return (
-                    
-                    <div key={message._id} className={`message-item ${isOwnMessage ? 'message-own' : 'message-other'}`}>
-                    <div className="message-header">
-                      <div className="sender-name">{message.senderName}</div>
-                      <div className="message-time">
-                        {new Date(message.createdAt).toLocaleString()}
-                      </div>
-                    </div>
-                    <div className="message-content">
-                      {formatMessage(message.content)}
-                    </div>
-                  </div>
-                  
-                  )
-    })
-    )}
-                  </div>
-              <div className="message-input-section"
-              >
-              <div className="message-input-container">
-              <textarea
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Type a message..."
-                className="message-input"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();  
-                    handleSendMessage(); 
-                  }
-                }}
+            <div className="new-channel-input-container">
+              <input
+                type="text"
+                value={newChannelName}
+                onChange={(e) => setNewChannelName(e.target.value)}
+                placeholder="Channel name..."
+                className="new-channel-input"
               />
-                <button 
-                  onClick={handleSendMessage}
-                  className="send-button"
-                  disabled={!newMessage.trim()}
-                >
-                  Send
-                </button>
-              </div>
-            </div>
+              <button 
+                onClick={handleCreateChannel}
+                className="create-btn"
+              >
+                Create
+              </button>
+              <button 
+                onClick={() => setShowNewChannelInput(false)}
+                className="cancel-btn"
+              >
+                Cancel
+              </button>
             </div>
           )}
         </div>
+      )}
+
+      <ul className="channels-list">
+        {channels.map((channel) => {
+          let channelClass = "channel-item";
+          if (selectedChannelId === channel._id) {
+            channelClass += " selected";
+          }
+
+          return (
+            <li
+              key={channel._id}
+              onClick={() => handleChannelClick(channel._id)}
+              className={channelClass}
+            >
+              <div className="channel-content">
+                <span className="channel-name">{channel.name}</span>
+                {channel.isPrivate && (
+                  <span className="private-icon">🔒</span>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+
+    <div className="messages-panel">
+      <div className="messages-container">
+        <h2 className="messages-header">Messages</h2>
+        
+        {channelType === "STACK" && (!user || user.name === 'Guest') ? (
+          <div className="unauthorized-message">
+            Sorry, this channel is only for authorized users. Please log in to start chatting.
+          </div>
+        ) : (
+          <>
+            <div className="messages-list">
+              {messages.length === 0 ? (
+                <div className="no-messages">
+                  No messages yet. Start the conversation!
+                </div>
+              ) : (
+                messages.map((message) => {
+                  const isOwnMessage = user && user._id === String(message.senderId);
+                  return (
+                    <div key={message._id} className={`message-item ${isOwnMessage ? 'message-own' : 'message-other'}`}>
+                      <div className="message-header">
+                        <div className="sender-name">{message.senderName}</div>
+                        <div className="message-time">
+                          {new Date(message.createdAt).toLocaleString()}
+                        </div>
+                      </div>
+                      <div className="message-content">
+                        {formatMessage(message.content)}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+            {channels.find(channel => channel._id === selectedChannelId)?.name === "Chappy-chat info" ? null : (
+              <div className="message-input-section">
+                <div className="message-input-container">
+                  <textarea
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="Type a message..."
+                    className="message-input"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();  
+                        handleSendMessage(); 
+                      }
+                    }}
+                  />
+                  <button 
+                    onClick={handleSendMessage}
+                    className="send-button"
+                    disabled={!newMessage.trim()}
+                  >
+                    Send
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default HomePage;
