@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import "./Home.css";
-import { useUserStore } from "../stores/userStore";
+// import { useUserStore } from "../stores/userStore";
 
 interface Channel {
   _id: string;
@@ -33,10 +33,6 @@ interface JwtPayload {
 }
 
 const HomePage = () => {
-
-  const { 
-    setCurrentUser, 
-} = useUserStore();
 
   const [searchParams] = useSearchParams();
   const channelType = searchParams.get("channel");
@@ -86,9 +82,6 @@ const fetchMessages = async () => {
       }
 
       console.log("Fetching messages for channel:", selectedChannelId);
-
-      console.log("Selected Channel ID:", selectedChannelId);
-
       const response = await fetch(`/api/messages/${selectedChannelId}`, {
           headers,
       });
@@ -103,13 +96,12 @@ const fetchMessages = async () => {
       }
 
       const data = await response.json();
-      console.log("Received messages:", data);
+      console.log("Received messages:", data); // Log the messages received
       setMessages(data);
   } catch (error) {
       console.error("Error fetching messages:", error);
   }
 };
-
 
 const handleSendMessage = async () => {
   if (!newMessage.trim() || !selectedChannelId) return;
@@ -122,13 +114,14 @@ const handleSendMessage = async () => {
     if (token) {
       headers.Authorization = token;
     }
-
+    console.log("Sending message with user ID:", user?._id); 
     const response = await fetch('/api/messages', {
       method: 'POST',
       headers,
       body: JSON.stringify({
         content: newMessage,
-        channelId: selectedChannelId
+        channelId: selectedChannelId,
+      
       })
     });
 
@@ -141,24 +134,23 @@ const handleSendMessage = async () => {
   }
 };
 
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (token) {
       try {
-        const userData = jwtDecode<JwtPayload>(token);
-        setUser({
-          name: userData.name,
-          _id: userData._id,
-        });
-        console.log("Current user ID:", user?._id);
+          const userData = jwtDecode<JwtPayload>(token);
+          console.log("Decoded user data:", userData);
+
+          setUser({
+              _id: userData._id,  
+              name: userData.name,
+          });
       } catch (error) {
-        console.error("Error decoding token:", error);
-        localStorage.removeItem("token");
+          console.error("Error decoding token:", error);
+          localStorage.removeItem("token");
       }
-    }
-  }, [setCurrentUser]);
+  }
+}, [setUser]);
 
     const fetchChannels = async () => {
       try {
@@ -277,6 +269,7 @@ const handleChannelClick = (channelId: string) => {
 
         <ul className="channels-list">
           {channels.map((channel) => {
+           
             let channelClass = "channel-item";
             if (selectedChannelId === channel._id) {
               channelClass += " selected";
@@ -316,9 +309,15 @@ const handleChannelClick = (channelId: string) => {
                     No messages yet. Start the conversation!
                 </div>
                 ) : (
-                messages.map((message) => (
-                  
-                  <div key={message._id} className={`message-item ${message.senderId === user?._id ? 'message-own' : 'message-other'}`}>
+                  messages.map((message) => {
+                    console.log("Current User ID:", user?._id);
+                    console.log("Message Sender ID:", message.senderId);
+                    const isOwnMessage = user && user._id === String(message.senderId);
+                    console.log("Is Own Message:", isOwnMessage);
+
+                  return (
+                    
+                    <div key={message._id} className={`message-item ${isOwnMessage ? 'message-own' : 'message-other'}`}>
                     <div className="message-header">
                       <div className="sender-name">{message.senderName}</div>
                       <div className="message-time">
@@ -329,9 +328,11 @@ const handleChannelClick = (channelId: string) => {
                       {formatMessage(message.content)}
                     </div>
                   </div>
-                ))
-                )}
-              </div>
+                  
+                  )
+    })
+    )}
+                  </div>
               <div className="message-input-section"
               >
               <div className="message-input-container">

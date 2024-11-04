@@ -87,12 +87,7 @@ userRouter.post('/', async (req, res) => {
         let userCollection = db.collection("users");
         await userCollection.insertOne(newUser);
         logWithLocation(`User created successfully`, "success");
-        res.status(201).json({
-            message: "User created successfully",
-            user: {
-                name: newUser.name,
-            }
-        });
+        res.status(201);
     }
     catch (error) {
         console.error('Error creating user :', error);

@@ -95,7 +95,7 @@ messageRouter.post("/", authenticate, async (req: Request, res: Response): Promi
         }
 
         const newMessage = {
-            senderId: user ? new ObjectId(user.userId) : null,
+            senderId: user._id,
             senderName: user ? user.name : "Guest",
             channelId: new ObjectId(channelId),
             content: content,

@@ -8,7 +8,7 @@ export const loginSchema = Joi.object({
 
 export const messageSchema = Joi.object({
 	channelId: Joi.string().required(),
-	content: Joi.string().required(),
+	content: Joi.string().required()
 })
 
 export const privateMessageSchema = Joi.object({

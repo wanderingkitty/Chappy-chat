@@ -78,7 +78,7 @@ messageRouter.post("/", authenticate, async (req, res) => {
             return;
         }
         const newMessage = {
-            senderId: user ? new ObjectId(user.userId) : null,
+            senderId: user._id,
             senderName: user ? user.name : "Guest",
             channelId: new ObjectId(channelId),
             content: content,
