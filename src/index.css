@@ -22,7 +22,7 @@ body {
 }
 
 .start-page {
-  background-color: #1E1E1E;
+  background: linear-gradient(135deg, #5F5348 0%, #31303B 100%);
   min-height: 100vh;
   width: 100vw;
   display: flex;
@@ -39,20 +39,20 @@ body {
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 1400px; /* Увеличено с 1200px */
+  max-width: 1400px; 
   margin: 0 auto;
   padding: 0 2rem;
 }
 
 .option-line {
   height: 2px;
-  width: 150px; /* Увеличено со 100px */
+  width: 150px; 
   background-color: #FFB800;
   transition: width 0.3s ease;
 }
 
 .option-item:hover .option-line {
-  width: 200px; /* Увеличено со 150px */
+  width: 200px;
 }
 
 @media (max-width: 1200px) {
@@ -91,24 +91,30 @@ body {
 @media (max-width: 430px) {
 	
 	.option-item {
-    padding-top: 1.5em;
+    padding-top: 0.5em;
   }
 
   .user-header-main-page {
-    margin-bottom: 1.5em;
+    margin-bottom: 1em;
   }
 
   .main-logo {
     width: 130px;
 		height: 130px;
+    position: relative;
+    bottom: 25em;
   }
+  .options-container {
+    gap: 1.5rem;
+    margin-top: 2rem; 
+}
 
 }
 
 @media (max-width: 375px) {
 	
 	.option-item {
-    padding-top: 1.5em;
+    padding-top: 0.5em;
   }
 
   .user-header-main-page {
@@ -116,9 +122,12 @@ body {
   }
 
   .main-logo {
-    width: 100px;
-		height: 100px;
+    visibility: hidden;
   }
+  .options-container {
+    gap: 1rem; 
+    margin-top: -2rem;
+}
 
 }
 

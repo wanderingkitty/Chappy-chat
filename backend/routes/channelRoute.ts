@@ -44,4 +44,26 @@ channelRouter.get("/", async (req: Request, res: Response) => {
     }
 });
 
+
+channelRouter.post("/", async (req: Request, res: Response) => {
+    try {
+        await connect();
+        const channelsCollection: Collection<Channel> = db.collection("channels");
+        
+        const newChannel = {
+            name: req.body.name,
+            channelId: req.body.channelId,
+            members: [],
+            isPrivate: false,
+            parentChannel: "Coding" // добавляем поле для группировки
+        };
+
+        const result = await channelsCollection.insertOne(newChannel);
+        res.status(201).json({ _id: result.insertedId, ...newChannel });
+    } catch (error) {
+        console.error("Error creating channel:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 export { channelRouter };

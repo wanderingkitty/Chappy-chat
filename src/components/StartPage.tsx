@@ -93,7 +93,7 @@ const StartPage = () => {
                 </div>
 
                 <div className="center-logo">
-                    <img src="/90156689.png" alt="Logo" className="main-logo" />
+                    <img src="/90156689.png" alt="Logo" className="main-logo move-logo" />
                 </div>
 
                 <div className="right-options">

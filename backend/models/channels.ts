@@ -4,4 +4,5 @@ export interface Channel {
 	name: string;         
 	members: ObjectId[];   
 	isPrivate: boolean,
+	parentChannel?: string; 
 }

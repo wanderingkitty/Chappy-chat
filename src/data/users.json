@@ -1,14 +1,19 @@
 [
  {
 	"name":"Captain Nemo",
-	"password":"N@utilus1870"
+	"password":"passwor123"
  },
  {
     "username": "alice_smith",
-    "password": "alice123"
+    "password": "passwor123"
 },
 {
     "username": "legolas_elf",
-    "password": "mirkwood456"
+    "password": "passwor123"
+},
+{
+    "username": "Busia",
+    "password": "passwor123"
 }
+
 ]

@@ -2,10 +2,11 @@ import express, { Router, Request, Response, NextFunction } from "express";
 import { Collection, WithId } from "mongodb";
 import { connect, db } from "../data/dbConnection.js";
 import { validateLogin } from "../validation/validateLogin.js";
-import { loginSchema } from "../data/schema.js"; 
+import { loginSchema, userSchema } from "../data/schema.js"; 
 import { authenticate } from "../data/authMiddleware.js"; 
 import jwt from 'jsonwebtoken';
 import { User } from "../models/user.js";
+import { logWithLocation } from "../helpers/betterConsoleLog.js";
 
 const userRouter: Router = express.Router();
 
@@ -60,7 +61,6 @@ userRouter.post('/login', async (req: Request, res: Response): Promise<void> => 
             return;
         }
 
-
         const payload = {
             _id: user._id.toString(),
             name: user.name,
@@ -83,4 +83,41 @@ userRouter.post('/login', async (req: Request, res: Response): Promise<void> => 
     }
 });
 
+userRouter.post('/', async (req:Request, res: Response): Promise<void> => {
+
+    const newUser: User = req.body
+    const { error } = userSchema.validate(newUser)
+
+
+	if (error) {
+		logWithLocation(`Validation error: ${error.message}`, "error");
+		res.status(400);
+		logWithLocation(`${res.statusCode}`, "server");
+
+		res.status(400).json({
+			message: "Invalid user data",
+			error: error.message,
+		});
+		return;
+	}
+
+    try {
+        let userCollection: Collection<User> = db.collection("users")
+        await userCollection.insertOne(newUser)
+        logWithLocation(`User created successfully`, "success");
+        res.status(201).json({
+            message: "User created successfully",
+            user: {
+                name: newUser.name,
+            }
+        })
+        
+    } catch (error) {
+        console.error('Error creating user :', error);
+        res.status(500).json({ error: "Server Error", message: "An error occurred during creating user." });
+    }
+
+})
+
 export { userRouter };
+

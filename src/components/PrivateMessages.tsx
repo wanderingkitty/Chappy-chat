@@ -1,16 +1,13 @@
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import "./Home.css";
+import { useUserStore } from "../stores/userStore";
+import { User } from "../types";
 
 interface JwtPayload {
     _id: string;   
     name: string;
-    userId: string;
     [key: string]: any;
-}
-interface User {
-    _id: string;  
-    name: string;
 }
 
 interface Message {
@@ -22,13 +19,54 @@ interface Message {
     createdAt: Date;
 }
 
+interface Chat {
+    _id: string;
+    participants: string[];
+    recipientName: string;
+    senderName: string;
+    lastMessage?: Message;
+}
+
 const PrivateMessages = () => {
+
+    const { 
+        currentUser, 
+        usersList, 
+        setCurrentUser, 
+        setUsersList 
+    } = useUserStore();
+
+
     const [selectedChannelId, setSelectedChannelId] = useState<string>("");
     const [privateMessages, setPrivateMessages] = useState<Message[]>([]);
     const [user, setUser] = useState<User | null>(null);
     const [chats, setChats] = useState<any[]>([]);
+    // const [usersList, setUsersList] = useState<User[]>([])
     const [newMessage, setNewMessage] = useState<string>("");
-    const [usersList, setUsersList] = useState<User[]>([])
+
+    useEffect(() => {
+        const messagesList = document.querySelector('.messages-list');
+        if (messagesList) {
+            messagesList.scrollTo({
+                top: messagesList.scrollHeight,
+            });
+        }
+    }, [privateMessages]);
+
+    const sortChats = (chatsToSort: Chat[]) => {
+        return chatsToSort.sort((a, b) => {
+            const timeA = a.lastMessage?.createdAt ? new Date(a.lastMessage.createdAt).getTime() : 0;
+            const timeB = b.lastMessage?.createdAt ? new Date(b.lastMessage.createdAt).getTime() : 0;
+            return timeB - timeA;
+        });
+    };
+    
+    const sortUsers = (users: User[]) => {
+        return [...users].sort((a, b) => {
+            return a.name.localeCompare(b.name);
+        });
+    };
+    
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -44,48 +82,87 @@ const PrivateMessages = () => {
                     throw new Error('Network response was not ok')
                 }
                 const data = await response.json()
-                setUsersList(data)
+                const sortedUsers = sortUsers(data as User[])
+                setUsersList(sortedUsers)
             } catch (error) {
                 console.error("Error fetching users:", error);
             }
         }
         fetchUsers();
-    }, [user])
+    }, [currentUser, setUsersList])
 
     useEffect(() => {
         const fetchChats = async () => {
             if (!user || user.name === 'Guest' || !user._id) {
                 console.log("User is not valid, skipping chat fetch.");
-                return; 
+                return;
             }
-            console.log("Fetching chats for user:", user.name);
-    
+            
             try {
                 const headers: HeadersInit = {};
                 const token = localStorage.getItem("token");
                 if (token) {
                     headers.Authorization = token;
                 }
-    
+        
                 const response = await fetch("/api/private-messages/chat", { headers });
                 if (!response.ok) {
-                    throw new Error("Network response was not ok");
+                    throw new Error("Failed to fetch chats");
                 }
                 const data = await response.json();
-                console.log("Fetched chats:", data); // Log fetched chats
-                setChats(data);
+        
+                const chatsWithMessages = [];
+        
+                for (const chat of data) {
+                    try {
+                        const response = await fetch(
+                            `/api/private-messages/chat/${chat._id}`,
+                            { headers }
+                        );
+                        
+                        if (!response.ok) {
+                            console.warn(`Failed to fetch messages for chat ${chat._id}`);
+                            chatsWithMessages.push({
+                                ...chat,
+                                lastMessage: null
+                            });
+                            continue;
+                        }
+        
+                        const messages = await response.json();
+                        
+                        const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+                        
+                        chatsWithMessages.push({
+                            ...chat,
+                            lastMessage
+                        });
+                    } catch (error) {
+                        console.warn(`Error fetching messages for chat ${chat._id}:`, error);
+                        chatsWithMessages.push({
+                            ...chat,
+                            lastMessage: null
+                        });
+                    }
+                }
+        
+                const sortedChats = chatsWithMessages.sort((a, b) => {
+                    const timeA = a.lastMessage?.createdAt ? new Date(a.lastMessage.createdAt).getTime() : 0;
+                    const timeB = b.lastMessage?.createdAt ? new Date(b.lastMessage.createdAt).getTime() : 0;
+                    return timeB - timeA;
+                });
+        
+                setChats(sortedChats);
             } catch (error) {
                 console.error("Error fetching chats:", error);
             }
         };
-    
+
         fetchChats();
     }, [user]);
     
     
     
-
-
     useEffect(() => {
         const fetchPrivateMessages = async () => {
             if (!selectedChannelId) return;
@@ -122,18 +199,19 @@ const PrivateMessages = () => {
         if (token) {
             try {
                 const userData = jwtDecode<JwtPayload>(token);
-                console.log("Decoded user data:", userData); // Log the user data
+                console.log("Decoded user data:", userData);
     
                 setUser({
-                    _id: userData.userId || userData._id,  // Adjust here if necessary
+                    _id: userData._id,  
                     name: userData.name,
+                    isGuest: false
                 });
             } catch (error) {
                 console.error("Error decoding token:", error);
                 localStorage.removeItem("token");
             }
         }
-    }, []);
+    }, [setCurrentUser]);
     
 
     const handleSendMessage = async () => {
@@ -146,8 +224,8 @@ const PrivateMessages = () => {
             };
 
             const currentChat = chats.find(chat => chat._id === selectedChannelId);
-            if (!currentChat) return;
 
+            if (!currentChat) return;
             const response = await fetch('/api/private-messages', {
                 method: 'POST',
                 headers,
@@ -159,7 +237,6 @@ const PrivateMessages = () => {
             });
 
             if (response.ok) {
-          
                 setNewMessage('');
 
                 const updatedResponse = await fetch(`/api/private-messages/chat/${selectedChannelId}`, {
@@ -176,36 +253,43 @@ const PrivateMessages = () => {
     };
     
     const handleUserSelect = async (selectedUser: User) => {
-   
-            try {
-                const headers: HeadersInit = {
-                    'Content-Type': 'application/json',
-                    'Authorization': localStorage.getItem("token") || ''
-                };
+        try {
+            const existingChat = chats.find(chat => 
+                chat.participants.includes(selectedUser._id) && 
+                chat.participants.includes(user?._id)
+            );
     
-                const response = await fetch('/api/private-messages/chat', {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify({
-                        recipientId: selectedUser._id,
-                        recipientName: selectedUser.name
-                    })
-                });
-    
-                if (response.ok) {
-                    const newChatData = await response.json();
-                    setSelectedChannelId(newChatData._id);
-                    setChats(prevChats => [...prevChats, newChatData]);
-
-                } else {
-                    const errorData = await response.json();
-                    console.error('Failed to create chat', errorData);
-                }
-            } catch (error) {
-                console.error("Error creating chat and sending message:", error);
+            if (existingChat) {
+                setSelectedChannelId(existingChat._id);
+                return;
             }
-        }
     
+            const headers: HeadersInit = {
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem("token") || ''
+            };
+    
+            const response = await fetch('/api/private-messages/chat', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({
+                    recipientId: selectedUser._id,
+                    recipientName: selectedUser.name
+                })
+            });
+    
+            if (response.ok) {
+                const newChatData = await response.json();
+                setSelectedChannelId(newChatData._id);
+                setChats(prevChats => sortChats([...prevChats, newChatData]));
+            } else {
+                const errorData = await response.json();
+                console.error('Failed to create chat', errorData);
+            }
+        } catch (error) {
+            console.error("Error creating chat and sending message:", error);
+        }
+    };
     
 
     return (
@@ -219,9 +303,9 @@ const PrivateMessages = () => {
                     
                 <div className="channels-list">
                     {chats.map((chat) => {
-                        // Определяем, является ли текущий пользователь отправителем
+                      
                         const isSender = chat.participants[0] === user?._id;
-                        // Выбираем имя собеседника в зависимости от роли пользователя
+                  
                         const chatName = isSender ? chat.recipientName : chat.senderName;
                         
                         return (
@@ -241,7 +325,9 @@ const PrivateMessages = () => {
                     <h3>Chappy-chat users:</h3>
                     <div className="users-list">
 
-                        {usersList.map(user => (
+                        {usersList
+                        .filter(listUser => listUser._id !== currentUser?._id)
+                        .map(user => (
                             <div
                             key={user._id}
                             className="user-item"
@@ -256,17 +342,22 @@ const PrivateMessages = () => {
 
             <div className="messages-panel">
                 <div className="messages-container">
-                    <h2 className="messages-header">Messages</h2>
                     {!user || user.name === 'Guest' ? (
                         <div className="unauthorized-message">
                             Sorry, private messages are only for authorized users. Please, log in to start chatting.
                         </div>
+                    ): !selectedChannelId ? (
+                        <div className="unauthorized-message">
+                            Choose a user to start chatting
+                        </div>
+
                     ) : (
                         <>
                         </>
                     )}
                     {selectedChannelId && user && (
                         <div className="messages-list">
+                        <h2 className="messages-header">Messages</h2>
                             {privateMessages.map((message) => (
                                 <div key={message._id}  className={`message-item ${message.senderId === user?._id ? 'message-own' : 'message-other'}`}
                                 >

@@ -26,19 +26,18 @@ const Login = () => {
             const data = await response.json();
 
             if (response.ok) {
-                // Сохраняем токен
                 const token = data.jwt;
                 localStorage.setItem('token', data.jwt);
                 console.log("Stored token for legolas_elf:", token);
-                setMessage('Успешный вход!');
-                navigate('/');  // Перенаправление после успешного входа
+                setMessage('Login success!');
+                navigate('/'); 
             } else {
-                setMessage(data.message || 'Ошибка входа');
+                setMessage(data.message || 'Error log in');
             }
 
         } catch (error) {
             console.error('Login error:', error);
-            setMessage('Ошибка подключения к серверу');
+            setMessage('Error connecting to the server');
         } finally {
             setIsLoading(false);
         }

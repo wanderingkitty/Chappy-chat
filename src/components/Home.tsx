@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import "./Home.css";
+import { useUserStore } from "../stores/userStore";
 
 interface Channel {
   _id: string;
-  name: string;
   channelId: string;
+  name: string;
   members: string;
   isPrivate: boolean;
+  parentChannel?: string; 
 }
 
 interface Message {
@@ -20,17 +22,22 @@ interface Message {
 }
 
 interface User {
+  _id: string;
   name: string;
-  userId: string;
 }
 
 interface JwtPayload {
+  _id: string;
   name: string;
-  userId: string;
   [key: string]: any;
 }
 
 const HomePage = () => {
+
+  const { 
+    setCurrentUser, 
+} = useUserStore();
+
   const [searchParams] = useSearchParams();
   const channelType = searchParams.get("channel");
   const [channels, setChannels] = useState<Channel[]>([]);
@@ -38,75 +45,102 @@ const HomePage = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [newMessage, setNewMessage] = useState<string>("");
+  const [showNewChannelInput, setShowNewChannelInput] = useState(false);
+  const [newChannelName, setNewChannelName] = useState("");
 
-  const formatMessage = (content: string) => {
-    if (content.includes('```')) {
-      const [text, code] = content.split('```');
-      return (
-        <div>
-          <div className="message-text">{text}</div>
-          <pre className="code-block">
-            <code>{code}</code>
-          </pre>
-        </div>
-      );
+
+  useEffect(() => {
+    const messagesList = document.querySelector('.messages-list');
+    if (messagesList) {
+        messagesList.scrollTo({
+            top: messagesList.scrollHeight,
+            behavior: 'smooth'
+        });
     }
-    return <div className="regular-message">{content}</div>;
-  };
+}, [messages]);
 
-  const fetchMessages = async () => {
-    if (!selectedChannelId) return;
+const formatMessage = (content: string) => {
+  if (content.includes('```')) {
+    const [text, code] = content.split('```');
+    return (
+      <div>
+        <div className="message-text">{text}</div>
+        <pre className="code-block">
+          <code>{code}</code>
+        </pre>
+      </div>
+    );
+  }
 
-    try {
+  return <div className="regular-message">{content}</div>;
+};
+
+const fetchMessages = async () => {
+  if (!selectedChannelId) return;
+
+  try {
       const headers: HeadersInit = {};
       const token = localStorage.getItem("token");
       if (token) {
-        headers.Authorization = token;
+          headers.Authorization = token;
       }
+
+      console.log("Fetching messages for channel:", selectedChannelId);
+
+      console.log("Selected Channel ID:", selectedChannelId);
 
       const response = await fetch(`/api/messages/${selectedChannelId}`, {
-        headers,
+          headers,
       });
-      if (response.status === 403) {
-        setMessages([]);
-        return;
+
+      if (!response.ok) {
+          console.error("Error response:", response.status);
+          if (response.status === 403) {
+              setMessages([]);
+              return;
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
       }
+
       const data = await response.json();
+      console.log("Received messages:", data);
       setMessages(data);
-    } catch (error) {
+  } catch (error) {
       console.error("Error fetching messages:", error);
+  }
+};
+
+
+const handleSendMessage = async () => {
+  if (!newMessage.trim() || !selectedChannelId) return;
+
+  try {
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json'
+    };
+    const token = localStorage.getItem("token");
+    if (token) {
+      headers.Authorization = token;
     }
-  };
 
-  const handleSendMessage = async () => {
-    if (!newMessage.trim() || !selectedChannelId) return;
+    const response = await fetch('/api/messages', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        content: newMessage,
+        channelId: selectedChannelId
+      })
+    });
 
-    try {
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json'
-      };
-      const token = localStorage.getItem("token");
-      if (token) {
-        headers.Authorization = token;
-      }
-
-      const response = await fetch('/api/messages', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          content: newMessage,
-          channelId: selectedChannelId
-        })
-      });
-
-      if (response.ok) {
-        setNewMessage("");
-        fetchMessages();
-      }
-    } catch (error) {
-      console.error("Error sending message:", error);
+    if (response.ok) {
+      setNewMessage("");
+      fetchMessages();
     }
-  };
+  } catch (error) {
+    console.error("Error sending message:", error);
+  }
+};
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -116,16 +150,16 @@ const HomePage = () => {
         const userData = jwtDecode<JwtPayload>(token);
         setUser({
           name: userData.name,
-          userId: userData.userId,
+          _id: userData._id,
         });
+        console.log("Current user ID:", user?._id);
       } catch (error) {
         console.error("Error decoding token:", error);
         localStorage.removeItem("token");
       }
     }
-  }, []);
+  }, [setCurrentUser]);
 
-  useEffect(() => {
     const fetchChannels = async () => {
       try {
         const headers: HeadersInit = {};
@@ -139,7 +173,7 @@ const HomePage = () => {
 
         const filteredChannels = data.filter((channel: Channel) => {
           if (channelType === "CODING") {
-            return channel.name === "Coding";
+            return channel.name === "Coding" || channel.parentChannel === "Coding";;
           } else if (channelType === "STACK") {
             return channel.name === "Stack Overflow & Chill";
           }
@@ -156,16 +190,47 @@ const HomePage = () => {
       }
     };
 
+useEffect(() => {
     fetchChannels();
-  }, [channelType, user]);
+}, [channelType, user]); 
 
-  useEffect(() => {
-    fetchMessages();
-  }, [selectedChannelId]);
+useEffect(() => {
+  fetchMessages();
+}, [selectedChannelId]);
 
-  const handleChannelClick = (channelId: string) => {
-    setSelectedChannelId(channelId);
-  };
+  const handleCreateChannel = async () => {
+    if (!newChannelName.trim()) return;
+
+    try {
+        const headers: HeadersInit = {
+            'Content-Type': 'application/json',
+            'Authorization': localStorage.getItem("token") || ''
+        };
+
+        const response = await fetch('/api/channels', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+                name: newChannelName,
+                members: [],
+                parentChannel: "Coding"
+            })
+        });
+
+        if (response.ok) {
+            setNewChannelName("");
+            setShowNewChannelInput(false);
+            fetchChannels();
+        }
+    } catch (error) {
+        console.error("Error creating channel:", error);
+    }
+};
+
+const handleChannelClick = (channelId: string) => {
+  setSelectedChannelId(channelId);
+};
+
 
   return (
     <div className="home-container">
@@ -174,6 +239,41 @@ const HomePage = () => {
           Logged in as:{" "}
           <span className="username">{user ? user.name : "Guest"}</span>
         </h1>
+
+        {channelType === "CODING" && user && (
+                    <div className="create-channel-section">
+                        {!showNewChannelInput ? (
+                            <button 
+                                className="create-channel-btn"
+                                onClick={() => setShowNewChannelInput(true)}
+                            >
+                                + Create Channel
+                            </button>
+                        ) : (
+                            <div className="new-channel-input-container">
+                                <input
+                                    type="text"
+                                    value={newChannelName}
+                                    onChange={(e) => setNewChannelName(e.target.value)}
+                                    placeholder="Channel name..."
+                                    className="new-channel-input"
+                                />
+                                <button 
+                                    onClick={handleCreateChannel}
+                                    className="create-btn"
+                                >
+                                    Create
+                                </button>
+                                <button 
+                                    onClick={() => setShowNewChannelInput(false)}
+                                    className="cancel-btn"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
 
         <ul className="channels-list">
           {channels.map((channel) => {
@@ -211,8 +311,14 @@ const HomePage = () => {
           ) : (
             <div>
               <div className="messages-list">
-                {messages.map((message) => (
-                  <div key={message._id} className={`message-item ${message.senderId === user?.userId ? 'message-own' : 'message-other'}`}>
+              {messages.length === 0 ? (
+                <div className="no-messages">
+                    No messages yet. Start the conversation!
+                </div>
+                ) : (
+                messages.map((message) => (
+                  
+                  <div key={message._id} className={`message-item ${message.senderId === user?._id ? 'message-own' : 'message-other'}`}>
                     <div className="message-header">
                       <div className="sender-name">{message.senderName}</div>
                       <div className="message-time">
@@ -223,7 +329,8 @@ const HomePage = () => {
                       {formatMessage(message.content)}
                     </div>
                   </div>
-                ))}
+                ))
+                )}
               </div>
               <div className="message-input-section"
               >
