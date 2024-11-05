@@ -54,4 +54,5 @@ privateChatRoute.post("/chat", authenticate, async (req: Request, res: Response)
 });
 
 
-export default privateChatRoute;
+export { privateChatRoute };
+
