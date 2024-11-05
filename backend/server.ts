@@ -5,7 +5,7 @@ import { logWithLocation } from './helpers/betterConsoleLog.js';
 import { channelRouter } from './routes/channelRoute.js';
 import { messageRouter } from './routes/messageRoute.js';
 import { privateMessageRouter } from './routes/privateMessageRoute.js';
-import { privateChatRoute } from './routes/privateChatRoute.js';
+import privateChatRoute from './routes/privateChatRoute.js';
 
 console.log('CONNECTION_STRING:', process.env.CONNECTION_STRING);
 
