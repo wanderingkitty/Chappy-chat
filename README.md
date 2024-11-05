@@ -10,7 +10,7 @@ Documented with [https://writer.mintlify.com/](Mintlify Document Writer)
 -  [Tech Stack](#tech-stack)
 -  [Installation](#installation)
 -  [Database model](#database-model)
--  [API Endpints](#api-endpoints)
+-  [API Endpoints](#api-endpoints)
 
 ## Features:
 
@@ -99,4 +99,72 @@ Check package.json for other scripts, such as clean, build and so on.
 | recipientName | string | The name for the user who receives the message. |
 
 ## API Endpoints
+
+### Login User
+
+`POST /login`
+
+#### Description
+Authenticates a user and returns a JWT token for subsequent requests.
+
+#### Request Body
+```json
+{
+  "name": "string",
+  "password": "string"
+}
+
+### GET users
+
+`GET /users`
+
+#### Description
+Returns a list of all users available for chat interactions.
+
+#### Success Response
+- **Status:** 200 OK
+- **Body:**
+```json
+[
+  {
+    "_id": "string",
+    "name": "string"
+  }
+]
+
+### GET channels
+
+`GET /channels`
+
+#### Description 
+Returns a list of all channels, including both open and private channels.
+
+#### Success Response
+- **Status:** 200 OK
+- **Body:**
+```json
+[
+  {
+    "_id": "string",
+    "name": "string",
+    "isPrivate": "boolean",
+    "parentChannel": "string"
+  }
+]
+
+### POST channels
+
+`POST /channels`
+
+#### Description 
+Creates a new channel. Only authorized users can create channels.
+
+#### Request Body
+```json
+{
+ "name": "string",
+ "members": "string[]",
+ "parentChannel": "string",
+ "isPrivate": "boolean"
+}
 

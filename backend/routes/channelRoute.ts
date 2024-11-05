@@ -6,7 +6,8 @@ import { Channel } from "../models/channels.js";
 const channelRouter: Router = express.Router();
 
 
-
+/* The `channelRouter.get("/", async (req: Request, res: Response) => { ... }` function is handling the
+GET request to retrieve channels. Here's a breakdown of what it does: */
 channelRouter.get("/", async (req: Request, res: Response) => {
 
     if (!process.env.SECRET) {
@@ -45,6 +46,8 @@ channelRouter.get("/", async (req: Request, res: Response) => {
 });
 
 
+/* The `channelRouter.post("/", async (req: Request, res: Response) => { ... }` function is handling
+the POST request to create a new channel. Here's a breakdown of what it does: */
 channelRouter.post("/", async (req: Request, res: Response) => {
     try {
         await connect();
@@ -55,7 +58,7 @@ channelRouter.post("/", async (req: Request, res: Response) => {
             channelId: req.body.channelId,
             members: [],
             isPrivate: false,
-            parentChannel: "Coding" // добавляем поле для группировки
+            parentChannel: "Coding" 
         };
 
         const result = await channelsCollection.insertOne(newChannel);
