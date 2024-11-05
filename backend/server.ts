@@ -7,11 +7,9 @@ import { messageRouter } from './routes/messageRoute.js';
 import { privateMessageRouter } from './routes/privateMessageRoute.js';
 import { privateChatRoute } from './routes/privateChatRoute.js';
 
-console.log('CONNECTION_STRING:', process.env.CONNECTION_STRING);
 
 const app = express();
 const port: number = Number(process.env.PORT) || 4444;
-
 
 // Middleware
 app.use('/static', express.static('backendDist/'))
