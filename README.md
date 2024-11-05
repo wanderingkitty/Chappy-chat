@@ -1,6 +1,6 @@
 # Chappy-chat API
 
-This is a **Chat API** build with  **MERN stack** (MngoDb, Express, React, Node.js) and icludes authentication with **JWT(JSON Web Tokens)** and validation using **Joi**. Chappy-chat is application where userrs can send and recieve messaegs in channels or directly to other users(DMs). The API provides endpoints for user authentication, managing channels, and sending messages in both open and locked channels. The application allows for guest access to open channels and secured communication for logged-in users.
+This is a **Chat API** build with  **MERN stack** (MongoDB, Express, React, Node.js) and icludes authentication with **JWT(JSON Web Tokens)** and validation using **Joi**. Chappy-chat is application where users can send and recieve messages in channels or directly to other users(DMs). The API provides endpoints for user authentication, managing channels, and sending messages in both open and locked channels. The application allows for guest access to open channels and secured communication for logged-in users.
 
 Documented with [https://writer.mintlify.com/](Mintlify Document Writer)
 
@@ -11,10 +11,11 @@ Documented with [https://writer.mintlify.com/](Mintlify Document Writer)
 -  [Installation](#installation)
 -  [Database model](#database-model)
 -  [API Endpoints](#api-endpoints)
+-  [Common Error Responses](#common-error-responses)
 
 ## Features:
 
--   **CRUD Operations**: Create, Read, Update, and Delete products.
+-   **CRUD Operations**: Create, Read, messages and channels.
 -   **Validation**: Validates product data using `Joi`.
 -   **REST API**: Follows RESTful standards for better scalability and maintainability.
 
@@ -50,7 +51,7 @@ MONGODB_DB_NAME=Chappy-chat
 
 Replace `<userName> and <password> with your MongoDb username and password.`
 
-Start the develpment server:
+Start the development server:
 
 ```bash
  npm run backend
@@ -122,7 +123,7 @@ Authenticates a user and returns a JWT token for subsequent requests.
 #### Description
 Returns a list of all users available for chat interactions.
 
-#### Success Response
+#### Success response
 - **Status:** 200 OK
 - **Body:**
 ```json
@@ -141,7 +142,7 @@ Returns a list of all users available for chat interactions.
 #### Description 
 Returns a list of all channels, including both open and private channels.
 
-#### Success Response
+#### Success response
 - **Status:** 200 OK
 - **Body:**
 ```json
@@ -154,7 +155,6 @@ Returns a list of all channels, including both open and private channels.
   }
 ]
 ```
-
 
 ### POST channels
 
@@ -173,3 +173,137 @@ Creates a new channel. Only authorized users can create channels.
 }
 ```
 
+### GET channel messages
+
+`Get /messages/:channelId`
+
+#### Description
+Returns all messages for a specific channel.
+
+### Success response
+- **Status:** 200 OK
+- **Body:**
+```json
+[
+ {
+   "_id": "string",
+   "senderId": "string",
+   "senderName": "string",
+   "content": "string",
+   "channelId": "string",
+   "createdAt": "Date"
+ }
+]
+```
+
+### Send channel message
+
+`POST /messages`
+
+#### Description
+Sends a new mesage to selected channel.
+
+#### Request Body
+```json
+{
+  "content": "string",
+  "channelId": "string"
+}
+```
+
+### GET private chats
+
+#### Description
+Returns all private chats for authenticated user.
+
+### Success response
+- **Status:** 200 OK
+- **Body:**
+```json
+[
+  {
+    "_id": "string",
+    "participants": "string[]",
+    "recipientName": "string",
+    "senderName": "string",
+    "lastMessage": {
+      "content": "string",
+      "createdAt": "Date"
+    }
+  }
+]
+```
+
+### Create private chat
+
+#### Description 
+Creates a new private chat with another user from users-list.
+
+#### Request body
+```json
+{
+  "recipientId": "string",
+  "recipientName": "string"
+}
+```
+### Success response 
+- **Status:** 201 Created
+- **Body:**
+```json
+{
+  "_id": "string",
+  "participants": "string[]",
+  "recipientName": "string",
+  "senderName": "string"
+}
+```
+
+### GET private chat messages
+
+#### Description
+Retuens all messages from a specific private chat.
+
+### Success response
+- **Status:** 200 OK
+- **Body:**
+```json
+[
+  {
+    "_id": "string",
+    "senderId": "string",
+    "senderName": "string",
+    "recipientId": "string",
+    "content": "string",
+    "createdAt": "Date"
+  }
+]
+```
+
+### Send private message
+
+#### Description
+Sends a private message to another user.
+
+### Request body
+```json
+{
+  "content": "string",
+  "recipientId": "string",
+  "recipientName": "string"
+}
+```
+### Success response
+- **Status:** 201 Created
+- **Body:**
+```json
+{
+  "message": "Message sent successfully",
+  "messageId": "string"
+}
+```
+
+### Common Error Responses
+- 400 Bad Request (validation errors)
+- 401 Unauthorized (authentication required)
+- 403 Forbidden (insufficient permissions)
+- 500 Internal Server Error
