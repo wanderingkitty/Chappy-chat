@@ -30,7 +30,7 @@ app.use('/users', userRouter);
 app.use('/channels', channelRouter);
 app.use('/messages', messageRouter)
 app.use('/private-messages', privateMessageRouter);
-app.use('/private-messages', privateChatRoute)
+app.use('/private-chats', privateChatRoute)
 
 /**
  * Start server
