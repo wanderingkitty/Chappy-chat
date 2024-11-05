@@ -113,6 +113,7 @@ Authenticates a user and returns a JWT token for subsequent requests.
   "name": "string",
   "password": "string"
 }
+```
 
 ### GET users
 
@@ -131,6 +132,7 @@ Returns a list of all users available for chat interactions.
     "name": "string"
   }
 ]
+```
 
 ### GET channels
 
@@ -151,6 +153,8 @@ Returns a list of all channels, including both open and private channels.
     "parentChannel": "string"
   }
 ]
+```
+
 
 ### POST channels
 
@@ -167,4 +171,5 @@ Creates a new channel. Only authorized users can create channels.
  "parentChannel": "string",
  "isPrivate": "boolean"
 }
+```
 

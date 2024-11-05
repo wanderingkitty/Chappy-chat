@@ -1,6 +1,8 @@
 import express from "express";
 import { connect, db } from "../data/dbConnection.js";
 const channelRouter = express.Router();
+/* The `channelRouter.get("/", async (req: Request, res: Response) => { ... }` function is handling the
+GET request to retrieve channels. Here's a breakdown of what it does: */
 channelRouter.get("/", async (req, res) => {
     if (!process.env.SECRET) {
         console.log("SECRET is not defined");
@@ -32,6 +34,8 @@ channelRouter.get("/", async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
+/* The `channelRouter.post("/", async (req: Request, res: Response) => { ... }` function is handling
+the POST request to create a new channel. Here's a breakdown of what it does: */
 channelRouter.post("/", async (req, res) => {
     try {
         await connect();
@@ -41,7 +45,7 @@ channelRouter.post("/", async (req, res) => {
             channelId: req.body.channelId,
             members: [],
             isPrivate: false,
-            parentChannel: "Coding" // добавляем поле для группировки
+            parentChannel: "Coding"
         };
         const result = await channelsCollection.insertOne(newChannel);
         res.status(201).json({ _id: result.insertedId, ...newChannel });

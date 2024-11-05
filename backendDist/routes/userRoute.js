@@ -14,7 +14,7 @@ userRouter.use((req, _res, next) => {
     console.log(`Request Method: ${req.method}, Request URL: ${req.url}`);
     next();
 });
-/* The `userRouter.get("/all", authenticateJWT, async (_req: Request, res: Response): Promise<void> =>
+/* The `userRouter.get("/", authenticateJWT, async (_req: Request, res: Response): Promise<void> =>
 { ... }` function in the provided TypeScript code is defining a route handler for a GET request to
 the '/all' endpoint. Here is a breakdown of what it is doing: */
 userRouter.get("/", authenticate, async (_req, res) => {
