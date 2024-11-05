@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams,useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import "./Home.css";
 import leftArrow from '../assets/left-arrow.png'; 
@@ -45,6 +45,14 @@ const HomePage = () => {
   const [showNewChannelInput, setShowNewChannelInput] = useState(false);
   const [newChannelName, setNewChannelName] = useState("");
 
+  const handleChannelClick = (channelId: string) => {
+    setSelectedChannelId(channelId);
+  };
+  
+  const navigate = useNavigate()
+  const handleGoBackBtn = () => {
+    navigate( '/')
+  }
 
   useEffect(() => {
     const messagesList = document.querySelector('.messages-list');
@@ -113,9 +121,7 @@ const handleSendMessage = async () => {
     if (token) {
       headers.Authorization = token;
     } else {
-      // Для гостей можно добавить специальный заголовок
-      headers['X-Guest-Access'] = 'true';
-      // Или отправить информацию о госте в теле запроса
+      headers['access'] = 'guest';
     }
 
     const response = await fetch('/api/messages', {
@@ -218,11 +224,7 @@ useEffect(() => {
     } catch (error) {
         console.error("Error creating channel:", error);
     }
-};
-
-const handleChannelClick = (channelId: string) => {
-  setSelectedChannelId(channelId);
-};
+}
 
 
 return (
@@ -230,7 +232,7 @@ return (
     <div className="channels-panel">
       <h1 className="user-header">
         <div className="arrow-btn">
-          <button className="back-btn">
+          <button onClick={handleGoBackBtn} className="back-btn">
             <img src={leftArrow} alt="arrow pixel button image" />
           </button>
         </div>

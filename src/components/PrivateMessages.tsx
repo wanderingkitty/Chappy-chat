@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import leftArrow from '../assets/left-arrow.png'; 
 import { jwtDecode } from "jwt-decode";
 import "./Home.css";
 import { useUserStore } from "../stores/userStore";
@@ -43,6 +45,12 @@ const PrivateMessages = () => {
     const [chats, setChats] = useState<any[]>([]);
     // const [usersList, setUsersList] = useState<User[]>([])
     const [newMessage, setNewMessage] = useState<string>("");
+
+
+    const navigate = useNavigate()
+    const handleGoBackBtn = () => {
+      navigate( '/')
+    }
 
     useEffect(() => {
         const messagesList = document.querySelector('.messages-list');
@@ -296,6 +304,11 @@ const PrivateMessages = () => {
         <div className="home-container">
             <div className="channels-panel">
                 <h1 className="user-header">
+                <div className="arrow-btn">
+                    <button onClick={handleGoBackBtn} className="back-btn">
+                        <img src={leftArrow} alt="arrow pixel button image" />
+                    </button>
+                </div>
                     Logged in as:{" "}
                     <span className="username">{user ? user.name : "Guest"}</span>
                 </h1>
