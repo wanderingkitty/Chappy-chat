@@ -9,8 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "backend": "tsc --project tsconfig.backend.json && node --env-file .env ./backendDist/server.js",
-    "start": "concurrently \"npm run dev\" \"npm run backend\"",
-    "start:prod": "cd backendDist && node server.js" 
+    "start-backend": "node --env-file .env ./backendDist/server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
