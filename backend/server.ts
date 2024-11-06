@@ -25,11 +25,11 @@ app.get('/', (_req: Request, res: Response) => {
     logWithLocation(`Server status ${res.statusCode}`, "success");
 }); 
 
-app.use('/users', userRouter);
-app.use('/channels', channelRouter);
-app.use('/messages', messageRouter)
-app.use('/private-messages', privateMessageRouter);
-app.use('/private-chats', privateChatRoute)
+app.use('/api/users', userRouter);
+app.use('/api/channels', channelRouter);
+app.use('/api/messages', messageRouter);
+app.use('/api/private-messages', privateMessageRouter);
+app.use('/api/private-chats', privateChatRoute);
 
 /**
  * Start server

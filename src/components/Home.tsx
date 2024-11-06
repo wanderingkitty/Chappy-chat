@@ -91,10 +91,13 @@ const fetchMessages = async () => {
       }
 
       console.log("Fetching messages for channel:", selectedChannelId);
+      
       const response = await fetch(`/api/messages/${selectedChannelId}`, {
           headers,
       });
 
+      console.log("Response status:", response.status);
+      
       if (!response.ok) {
           console.error("Error response:", response.status);
           if (response.status === 403) {
@@ -103,9 +106,14 @@ const fetchMessages = async () => {
           }
           throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
       const data = await response.json();
+      console.log("Received messages data:", data);
+      console.log("Setting messages state with:", data);
+      
       setMessages(data);
   } catch (error) {
+      console.error("Full error object:", error);
       console.error("Error fetching messages:", error);
   }
 };

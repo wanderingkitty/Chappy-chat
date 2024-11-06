@@ -1,60 +1,54 @@
 import express, { Router, Request, Response} from "express";
 import { Collection, ObjectId } from "mongodb";
 import { connect, db } from "../data/dbConnection.js";
-import { logWithLocation } from "../helpers/betterConsoleLog.js";
-import { messageSchema } from "../data/schema.js"; 
 import { authenticate } from "../data/authMiddleware.js"; 
-
 
 const messageRouter: Router = express.Router();
 
 messageRouter.get("/:channelId", authenticate, async (req: Request, res: Response): Promise<void> => {
-    
-    logWithLocation(`GET request to messages received for channel ${req.params.channelId}`, "info");
+    console.log("Получен запрос на получение сообщений для канала:", req.params.channelId);
 
     try {
         await connect();
-        const channelsCollection: Collection = db.collection("channels");
         const messageCollection: Collection = db.collection("messages");
+        const channelsCollection: Collection = db.collection("channels");
 
-        const channelId = new ObjectId(req.params.channelId);
-        const channel = await channelsCollection.findOne({ _id: channelId });
-
+        const channelObjectId = new ObjectId(req.params.channelId);
+        
+        const channel = await channelsCollection.findOne({ 
+            _id: channelObjectId
+        });
+        
         if (!channel) {
+            console.log("Канал не найден");
             res.status(404).json({error: "Channel not found"});
             return;
         }
 
-        if (channel.isPrivate && !(req as any).user) {
-            res.status(403).json({error: "Authentication required for private channels"});
-            return;
-        }
-
-        const messages = await messageCollection.find({ channelId: channelId }).toArray();
+        const messages = await messageCollection
+            .find({ 
+                channelId: channelObjectId  
+            })
+            .sort({ createdAt: 1 })
+            .toArray();
+        
+        console.log(`Найдено ${messages.length} сообщений:`, messages);
         
         res.json(messages);
 
     } catch (error) {
-        logWithLocation(`Error fetching messages: ${error}`, "error");
+        console.error("Ошибка при получении сообщений:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 });
 
 messageRouter.post("/", authenticate, async (req: Request, res: Response): Promise<void> => {
-    const { error } = messageSchema.validate(req.body)
-
-    if(error) {
-        res.status(400).json({
-            error: "Validation error",
-            message: error.message
-        })
-        return
-    }
+    console.log("Получен запрос на создание сообщения:", req.body);
 
     try {
         await connect();
-        const channelsCollection: Collection = db.collection("channels");
         const messagesCollection: Collection = db.collection("messages");
+        const channelsCollection: Collection = db.collection("channels");
         
         const { content, channelId } = req.body;
         const user = (req as any).user;
@@ -64,35 +58,37 @@ messageRouter.post("/", authenticate, async (req: Request, res: Response): Promi
             return;
         }
 
-        const channel = await channelsCollection.findOne({ _id: new ObjectId(channelId) });
+        const channelObjectId = new ObjectId(channelId);
+        
+        const channel = await channelsCollection.findOne({ 
+            _id: channelObjectId
+        });
+
         if (!channel) {
             res.status(404).json({ error: "Channel not found" });
             return;
         }
 
-        // Проверяем, является ли канал приватным
-        if (channel.isPrivate && !user) {
-            res.status(403).json({error: "Authentication required for private channels"});
-            return;
-        }
-
-        // Создаем сообщение с учетом гостевого доступа
         const newMessage = {
             senderId: user ? user._id : 'guest',
             senderName: user ? user.name : "Guest",
-            channelId: new ObjectId(channelId),
+            channelId: channelObjectId,  
             content: content,
             createdAt: new Date()
         };
         
+        console.log("Сохраняем новое сообщение:", newMessage);
+        
         const result = await messagesCollection.insertOne(newMessage);
         
-        res.status(201).json({
-            message: "Message sent successfully",
-            messageId: result.insertedId
+        const savedMessage = await messagesCollection.findOne({ 
+            _id: result.insertedId 
         });
+        
+        res.status(201).json(savedMessage);
+
     } catch (error) {
-        logWithLocation(`Error sending message: ${error}`, "error");
+        console.error("Ошибка при создании сообщения:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 });
