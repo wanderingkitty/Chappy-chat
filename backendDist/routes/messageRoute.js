@@ -9,9 +9,7 @@ messageRouter.get("/:channelId", authenticate, async (req, res) => {
         await connect();
         const messageCollection = db.collection("messages");
         const channelsCollection = db.collection("channels");
-        // Создаем ObjectId из параметра
         const channelObjectId = new ObjectId(req.params.channelId);
-        // Проверяем существование канала
         const channel = await channelsCollection.findOne({
             _id: channelObjectId
         });
@@ -20,10 +18,9 @@ messageRouter.get("/:channelId", authenticate, async (req, res) => {
             res.status(404).json({ error: "Channel not found" });
             return;
         }
-        // Ищем сообщения по ObjectId
         const messages = await messageCollection
             .find({
-            channelId: channelObjectId // Используем ObjectId для поиска
+            channelId: channelObjectId
         })
             .sort({ createdAt: 1 })
             .toArray();
@@ -47,9 +44,7 @@ messageRouter.post("/", authenticate, async (req, res) => {
             res.status(400).json({ error: "Content and channel ID are required" });
             return;
         }
-        // Создаем ObjectId для channelId
         const channelObjectId = new ObjectId(channelId);
-        // Проверяем существование канала
         const channel = await channelsCollection.findOne({
             _id: channelObjectId
         });
@@ -57,17 +52,15 @@ messageRouter.post("/", authenticate, async (req, res) => {
             res.status(404).json({ error: "Channel not found" });
             return;
         }
-        // Создаем сообщение с ObjectId для channelId
         const newMessage = {
             senderId: user ? user._id : 'guest',
             senderName: user ? user.name : "Guest",
-            channelId: channelObjectId, // Сохраняем как ObjectId
+            channelId: channelObjectId,
             content: content,
             createdAt: new Date()
         };
         console.log("Сохраняем новое сообщение:", newMessage);
         const result = await messagesCollection.insertOne(newMessage);
-        // Получаем и возвращаем сохраненное сообщение
         const savedMessage = await messagesCollection.findOne({
             _id: result.insertedId
         });
