@@ -77,3 +77,58 @@ body {
     background-color: #ef4444; 
     color: #f3f4f6;
  }
+
+ .sign-up {
+   margin-top: 20px;
+   text-align: center;
+   padding: 10px;
+}
+
+.sign-up-message {
+   display: block;
+   margin-bottom: 10px;
+   color: #f3f4f6;
+   font-size: 0.9rem;
+}
+
+.sign-up-btn {
+   padding: 8px 20px;
+   background: transparent;
+   border: 2px solid #ffc400;
+   color: #ffc400;
+   border-radius: 4px;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   font-weight: bold;
+}
+
+.sign-up-btn:hover {
+   background: #ffc400;
+   color: #31303B;
+}
+
+.message {
+   margin-top: 15px;
+   padding: 12px;
+   border-radius: 4px;
+   text-align: center;
+   font-size: 0.9rem;
+   animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+   from {
+       opacity: 0;
+       transform: translateY(-10px);
+   }
+   to {
+       opacity: 1;
+       transform: translateY(0);
+   }
+}
+
+.success {
+   background-color: rgba(255, 184, 0, 0.2);
+   border: 1px solid #ffb800;
+   color: #ffb800;
+}

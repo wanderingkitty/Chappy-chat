@@ -1,4 +1,5 @@
 import express from "express";
+import { ObjectId } from "mongodb";
 import { connect, db } from "../data/dbConnection.js";
 import { validateLogin } from "../validation/validateLogin.js";
 import { loginSchema, userSchema } from "../data/schema.js";
@@ -70,9 +71,8 @@ userRouter.post('/login', async (req, res) => {
         res.status(500).json({ error: "Server Error", message: "An error occurred during login." });
     }
 });
-userRouter.post('/', async (req, res) => {
-    const newUser = req.body;
-    const { error } = userSchema.validate(newUser);
+userRouter.post('/signup', async (req, res) => {
+    const { error } = userSchema.validate(req.body);
     if (error) {
         logWithLocation(`Validation error: ${error.message}`, "error");
         res.status(400);
@@ -83,15 +83,47 @@ userRouter.post('/', async (req, res) => {
         });
         return;
     }
+    const { name, password } = req.body;
     try {
-        let userCollection = db.collection("users");
-        await userCollection.insertOne(newUser);
-        logWithLocation(`User created successfully`, "success");
-        res.status(201);
+        await connect();
+        const userCollection = db.collection("users");
+        const existingUser = await userCollection.findOne({ name });
+        if (existingUser) {
+            res.status(400).json({
+                error: "User exists",
+                message: "Username already taken"
+            });
+            return;
+        }
+        const newUser = {
+            _id: new ObjectId(),
+            userId: new ObjectId().toString(),
+            name,
+            password,
+            isGuest: false
+        };
+        const result = await userCollection.insertOne(newUser);
+        const payload = {
+            _id: result.insertedId.toString(),
+            name: newUser.name,
+            isGuest: newUser.isGuest
+        };
+        const token = jwt.sign(payload, process.env.SECRET || '');
+        res.json({
+            jwt: token,
+            user: {
+                id: result.insertedId,
+                name: newUser.name,
+                isGuest: newUser.isGuest
+            }
+        });
     }
     catch (error) {
-        console.error('Error creating user :', error);
-        res.status(500).json({ error: "Server Error", message: "An error occurred during creating user." });
+        console.error('Error during signup:', error);
+        res.status(500).json({
+            error: "Server Error",
+            message: "An error occurred during signup."
+        });
     }
 });
 export { userRouter };

@@ -3,6 +3,7 @@ import StartPage from './components/StartPage';
 import Login from './components/Login';
 import HomePage from './components/Home';
 import PrivateMessages from './components/PrivateMessages';
+import SignUp from './components/SignUp';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/private-messages" element={<PrivateMessages />} />
+        <Route path ="/signup" element={<SignUp />}/>
       </Routes>
     </div>
   );

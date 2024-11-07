@@ -277,7 +277,7 @@ const PrivateMessages = () => {
                 'Authorization': localStorage.getItem("token") || ''
             };
     
-            const response = await fetch('/api/private-messages/chat', {
+            const response = await fetch('/api/private-chats/chat', {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({

@@ -43,6 +43,10 @@ const Login = () => {
         }
     };
 
+    const handleSignUp = () => {
+        navigate('/signup')
+    }
+
     return (
         <div className="login-container">
             <h2>LOG IN</h2>
@@ -69,6 +73,14 @@ const Login = () => {
             >
                 {isLoading ? 'Logging in...' : 'LOG IN'}
             </button>
+            <div className="sign-up">
+                <span className="sign-up-message">Don't have an account? Sign up here</span>
+                <button
+                className="sign-up-btn"
+                onClick={handleSignUp}
+                > SIGN UP
+                </button>
+            </div>
             {message && (
                 <div className={`message ${message.includes('Success') ? 'success' : 'error'}`}>
                     {message}

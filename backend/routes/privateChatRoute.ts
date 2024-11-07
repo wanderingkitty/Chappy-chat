@@ -19,7 +19,6 @@ privateChatRoute.post("/chat", authenticate, async (req: Request, res: Response)
             return;
         }
 
-        // Check if a chat already exists with the same participants
         const existingChat = await privateChatsCollection.findOne({
             participants: {
                 $all: [user._id, recipientId],
@@ -32,7 +31,6 @@ privateChatRoute.post("/chat", authenticate, async (req: Request, res: Response)
             return;
         }
 
-        // Create new chat if it doesn't exist
         const newChat = {
             participants: [user._id, recipientId],
             recipientName,
