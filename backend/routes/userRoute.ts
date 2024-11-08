@@ -150,6 +150,75 @@ userRouter.post('/signup', async (req: Request, res: Response): Promise<void> =>
     }
 });
 
+userRouter.delete('/:id', authenticate, async (req: Request, res: Response): Promise<void> => {
+    try {
+        await connect();
+        const userCollection: Collection = db.collection("users");
+        const privateChatsCollection: Collection = db.collection("private-chats");
+        const privateMessagesCollection: Collection = db.collection("private-messages");
+        const messagesCollection: Collection = db.collection("messages"); 
+        const id = req.params.id;
 
-export { userRouter };
+        const user = (req as any).user;
+        if (user._id !== id) {
+            res.status(403).json({ 
+                error: "Unauthorized", 
+                message: "You can only delete your own account" 
+            });
+            return;
+        }
 
+        const objectId = new ObjectId(id);
+        
+        await privateMessagesCollection.updateMany(
+            { senderId: id }, 
+            {
+                $set: {
+                    senderName: "Unknown User",
+                }
+            }
+        );
+
+        await privateChatsCollection.updateMany(
+            { participants: id },  
+            {
+                $set: {
+                    senderName: "Unknown User",
+                    recipientName: "Unknown User"
+                }
+            }
+        );
+
+        await messagesCollection.updateMany(
+            { senderId: id },  
+            {
+                $set: {
+                    senderName: "Unknown User",
+                }
+            }
+        );
+
+        const result = await userCollection.deleteOne({ _id: objectId });
+
+        if (result.deletedCount === 0) {
+            res.status(404).json({ 
+                error: "Not found", 
+                message: "User not found" 
+            });
+            return;
+        }
+
+        res.status(200).json({ 
+            message: "User deleted successfully. Messages preserved anonymously." 
+        });
+
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        res.status(500).json({ 
+            error: "Server Error", 
+            message: "An error occurred while deleting user." 
+        });
+    }
+});
+
+export {userRouter}

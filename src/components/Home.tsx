@@ -234,7 +234,7 @@ useEffect(() => {
     }
 }
 
-
+  
 return (
   <div className="home-container">
     <div className="channels-panel">

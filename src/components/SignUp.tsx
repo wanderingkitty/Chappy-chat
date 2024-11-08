@@ -9,6 +9,8 @@ const SignUp = () => {
     const [isRegistering, setIsRegistering] = useState(false);
     const navigate = useNavigate();
 
+	
+
     const handleRegisterUser = async (e: React.FormEvent) => {
         e.preventDefault();
 

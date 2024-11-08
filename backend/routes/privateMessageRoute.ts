@@ -53,9 +53,9 @@ privateMessageRouter.post("/", authenticate, async (req: Request, res: Response)
 		
 		const newMessage = {
 			chatId: chatId,
-            senderId: new ObjectId(user._id),
+            senderId: user._id.toString(),
             senderName: user.name,
-			recipientId: new ObjectId(recipientId),
+            recipientId: recipientId,
 			recipientName: recipientName,
             content: content,
             createdAt: new Date()
