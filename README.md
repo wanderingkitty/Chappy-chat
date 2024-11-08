@@ -89,7 +89,8 @@ Check package.json for other scripts, such as clean, build and so on.
 | --- | --- | --- |
 | name | string | The name of the chanel. |
 | isPrivate | boolean | Indicates whether the channel is locked or open. |
-| members | ObjectId[] | List of users which are included to the channel. |
+| members | ObjectId | List of users which are included to the channel. |
+| parentChannel? | string | Optional reference to the parent channel name. Used for subchannel hierarchy (e.g., "Coding" as parent for programming language specific channels). |
 
 
 ### Private chat model
