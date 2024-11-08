@@ -143,24 +143,18 @@ userRouter.delete('/:id', authenticate, async (req, res) => {
             return;
         }
         const objectId = new ObjectId(id);
-        // Обновляем private messages по строковому ID
-        await privateMessagesCollection.updateMany({ senderId: id }, // Ищем по строковому ID
-        {
+        await privateMessagesCollection.updateMany({ senderId: id }, {
             $set: {
                 senderName: "Unknown User",
             }
         });
-        // Обновляем чаты
-        await privateChatsCollection.updateMany({ participants: id }, // Ищем по строковому ID
-        {
+        await privateChatsCollection.updateMany({ participants: id }, {
             $set: {
                 senderName: "Unknown User",
                 recipientName: "Unknown User"
             }
         });
-        // Обновляем обычные сообщения
-        await messagesCollection.updateMany({ senderId: id }, // Ищем по строковому ID
-        {
+        await messagesCollection.updateMany({ senderId: id }, {
             $set: {
                 senderName: "Unknown User",
             }

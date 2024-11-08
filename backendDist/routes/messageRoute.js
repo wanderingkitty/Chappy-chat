@@ -4,7 +4,6 @@ import { connect, db } from "../data/dbConnection.js";
 import { authenticate } from "../data/authMiddleware.js";
 const messageRouter = express.Router();
 messageRouter.get("/:channelId", authenticate, async (req, res) => {
-    console.log("Получен запрос на получение сообщений для канала:", req.params.channelId);
     try {
         await connect();
         const messageCollection = db.collection("messages");
@@ -14,7 +13,7 @@ messageRouter.get("/:channelId", authenticate, async (req, res) => {
             _id: channelObjectId
         });
         if (!channel) {
-            console.log("Канал не найден");
+            console.log("Channel not found");
             res.status(404).json({ error: "Channel not found" });
             return;
         }
@@ -24,7 +23,6 @@ messageRouter.get("/:channelId", authenticate, async (req, res) => {
         })
             .sort({ createdAt: 1 })
             .toArray();
-        console.log(`Найдено ${messages.length} сообщений:`, messages);
         res.json(messages);
     }
     catch (error) {
@@ -33,7 +31,6 @@ messageRouter.get("/:channelId", authenticate, async (req, res) => {
     }
 });
 messageRouter.post("/", authenticate, async (req, res) => {
-    console.log("Получен запрос на создание сообщения:", req.body);
     try {
         await connect();
         const messagesCollection = db.collection("messages");
@@ -59,7 +56,6 @@ messageRouter.post("/", authenticate, async (req, res) => {
             content: content,
             createdAt: new Date()
         };
-        console.log("Сохраняем новое сообщение:", newMessage);
         const result = await messagesCollection.insertOne(newMessage);
         const savedMessage = await messagesCollection.findOne({
             _id: result.insertedId
