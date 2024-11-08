@@ -15,7 +15,7 @@ Documented with [https://writer.mintlify.com/](Mintlify Document Writer)
 
 ## Features:
 
--   **CRUD Operations**: Create, Read, messages and channels.
+-   **CRUD Operations**: Create, Read, messages,channels and Create, Delete - users.
 -   **Validation**: Validates product data using `Joi`.
 -   **REST API**: Follows RESTful standards for better scalability and maintainability.
 
